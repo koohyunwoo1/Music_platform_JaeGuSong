@@ -3,6 +3,7 @@ import paths from "../configs/paths";
 import DividerUploadView from "../pages/divider/upload-view";
 import SignInView from "../pages/auth/signin-view";
 import SignUpView from "../pages/auth/signup-view";
+import CommunityView from "@/pages/community/community-view";
 
 const mainRoute: RouteObject[] = [
   {
