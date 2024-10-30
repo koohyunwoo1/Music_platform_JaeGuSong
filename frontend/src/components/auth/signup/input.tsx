@@ -163,7 +163,7 @@ const Input: React.FC = () => {
         //             "profileImage" : formData.profileImage
         //         }
         //     );
-               navigate(paths.main)
+            //    navigate(paths.main)
         //     console.log(response.data)
         // } catch(error) {
         //     console.error(error)
@@ -218,7 +218,7 @@ const Input: React.FC = () => {
                     {field.name === 'confirmNumber' && submitSignup ? '인증되었습니다.': null}
                 </div>
             ))}
-            {submitSignup ? <button type='submit'>회원가입</button> : ''}
+            {submitSignup ? <Button type='submit'>회원가입</Button> : ''}
         </form>
         </div>
     );
