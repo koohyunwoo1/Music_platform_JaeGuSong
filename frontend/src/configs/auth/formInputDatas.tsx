@@ -15,8 +15,6 @@ export interface SignupFormData {
     profileImage?: File | string | null;
   }
 
-
-
   export interface SignupInputField {
     label: string;
     type: string;
@@ -38,4 +36,22 @@ export interface SignupFormData {
     { label: '장르', type: 'select', name: 'genre', options: ['락', '발라드', '인디', '댄스', '클래식', '재즈', '오케스트라', '랩', '기타'] },
     { label: '전화번호', type: 'text', name: 'phoneNumber' },
     { label: '프로필 사진', type: 'file', name: 'profileImage' },
+  ];
+
+// 로그인할 때 필요한 데이터
+export interface SigninFormData {
+    userId: string;
+    password: string;
+  }
+
+  export interface SigninInputField {
+    label: string;
+    type: string;
+    name: string;
+    options?: string[];
+  }
+  // 회원가입할 때 필요한 데이터
+  export const SigninInputFields: SigninInputField[] = [
+    { label: '아이디', type: 'email', name: 'userId' },
+    { label: '비밀번호', type: 'text', name: 'password' },
   ];
