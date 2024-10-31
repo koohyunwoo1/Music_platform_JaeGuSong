@@ -4,6 +4,8 @@ import DividerUploadView from "../pages/divider/upload-view";
 import SignInView from "../pages/auth/signin-view";
 import SignUpView from "../pages/auth/signup-view";
 import CommunityView from "@/pages/community/community-view";
+import WsListView from "@/pages/workspace/ws-list-view";
+import WsDetailView from "@/pages/workspace/ws-detail-view";
 
 const mainRoute: RouteObject[] = [
   {
@@ -27,8 +29,12 @@ const mainRoute: RouteObject[] = [
         element: <DividerUploadView />,
       },
       {
-        // path: paths.workspace,
-        // element: <WorkspaceView />, // 나중에 추가 가능
+        path: paths.workspace.list,
+        element: <WsListView />, // 나중에 추가 가능
+      },
+      {
+        path: `${paths.workspace.list}/:workspaceId`, // 워크스페이스 상세 페이지 라우트
+        element: <WsDetailView />, // 상세 페이지 컴포넌트 렌더링
       },
       {
         // path: paths.game,
