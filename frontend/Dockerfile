@@ -16,4 +16,4 @@ COPY . .
 # 앱 실행 (예: npm start)
 # RUN npm start
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
