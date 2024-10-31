@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # 의존성 파일 복사
-COPY package.json .
+COPY package*.json .
 
 # 의존성 설치
 RUN npm install
