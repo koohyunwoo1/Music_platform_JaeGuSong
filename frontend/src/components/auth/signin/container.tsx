@@ -1,8 +1,10 @@
 import React from 'react';
 import Input from './input';
-import { Box, Heading } from '@chakra-ui/react';
+import { Box, Heading, Button } from '@chakra-ui/react';
+import useAuth from '@/hooks/auth/useAuth';
 
 const Container: React.FC = () => {
+  const { goSignupPage } = useAuth();
   return (
     <Box
       display="flex" 
@@ -15,6 +17,14 @@ const Container: React.FC = () => {
     >
       <Heading mb={4}>로그인</Heading>
       <Input />
+      <Button
+        variant="ghost"
+        marginTop="10px" 
+        color="white"
+        onClick={goSignupPage}
+      >
+        회원가입 하러 가기
+      </Button>
     </Box>
   );
 };

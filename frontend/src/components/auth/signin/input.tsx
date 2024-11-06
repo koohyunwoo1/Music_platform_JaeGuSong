@@ -3,18 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import { SigninFormData, SigninInputFields } from '@/configs/auth/formInputDatas';
 import { Box, Button, Input as ChakraInput } from '@chakra-ui/react';
 import paths from '@/configs/paths';
-import axios, { AxiosError} from 'axios';
+import axios, { AxiosError, AxiosResponse} from 'axios';
+import UseSingnin from '@/hooks/auth/useSignin';
 
 const Input: React.FC = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
-  const API_URL =import.meta.env.VITE_API_URL;
   const [ formData, setFormData] = useState<SigninFormData>({
     userId: '',
     password: ''
   });
+  const {
+    setSignined
+  } = UseSingnin();
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value}))
+  };
+
+  // dto 정보 받는 api 요청
+  const handleResponseDto = async (response: AxiosResponse) => {
+    try {
+      const accessToken = response.headers['authorization'];
+    const dtoResponse = await axios.get(
+        `${API_URL}/api/user`,
+      {
+        headers: {
+          Authorization: `${accessToken}`
+        },
+        withCredentials: true,
+      })
+      setSignined(true);
+      navigate(paths.community.main)
+    } catch(error) {
+      console.warn(error)
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -38,13 +62,14 @@ const Input: React.FC = () => {
             params: {
                 email: formData.userId,
                 password: formData.password
-            }
+            },
+            // withCredentials: true,
         }
-    );
-    navigate(paths.community.main)
-    console.log('로그인 성공', response)
-    // dto 정보 받는 api 요청하기!!!!!!!!
-    
+      );
+      console.log(response)
+      const token = response.headers.authorization.split(' ')[1];
+      localStorage.setItem('jwtToken', token);
+    await handleResponseDto(response)  
     } catch (error) {
       const axiosError = error as AxiosError;
       console.warn(error)

@@ -4,6 +4,7 @@ import SignInView from "../pages/auth/signin-view";
 import SignUpView from "../pages/auth/signup-view";
 import CommunityView from "@/pages/community/community-view";
 import CommunityMainView from "@/pages/community/community-main-view";
+import CommunityMyCommunityView from "@/pages/community/community-my-community-view";
 import CommunityCreateView from "@/pages/community/community-create-view";
 import CommunityDetailView from "@/pages/community/community-detail-view";
 import CommunityUpdateView from "@/pages/community/community-update-view";
@@ -38,6 +39,10 @@ const mainRoute: RouteObject[] = [
           {
             path: "",
             element: <CommunityMainView />,
+          },
+          {
+            path: "my-community",
+            element: <CommunityMyCommunityView />,
           },
           {
             path: "create",
