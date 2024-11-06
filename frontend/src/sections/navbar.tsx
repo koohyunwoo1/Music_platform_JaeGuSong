@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, Link, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Image, Link, Stack, Text, Input } from "@chakra-ui/react";
 import {
   AccordionItem,
   AccordionItemContent,
@@ -7,27 +7,33 @@ import {
 } from "@/components/ui/accordion";
 import paths from "@/configs/paths";
 import useAuth from "@/hooks/auth/useAuth";
+import useSearch from "@/hooks/navbar/useSearch";
+import UseSingnin from "@/hooks/auth/useSignin";
+import useHeaderStore from "@/stores/headerStore";
 import Search from "@/components/community/search";
 import useCommunityMain from "@/hooks/community/useCommunityMain";
-import path from "path";
-
 
 export default function Navbar() {
+  const { goSignupPage, goSignInPage, goLogout } = useAuth();
+  // const { openSearchModal, setOpenSearchModal } = useSearch();
+  const { signined } = UseSingnin();
+
+  const { openUserHeader, setOpenUserHeader } = useHeaderStore(state => state)
   const {
     openSearchModal,
     toggleSearchModal,
     handleChangeSearch
   } = useCommunityMain();
 
-  const { goSignupPage, goSignInPage } = useAuth();
 
   const items = [
     {
       value: "a",
       title: "커뮤니티",
       text: [
-        // { label: "검색", path: paths.search},
-        { label: "내 피드", path: paths.community.main },
+        { label: "메인", path: paths.community.main },
+        { label: "검색", onclick: () => {setOpenUserHeader()}},
+        { label: "내 피드", path: paths.community.myCommunity },
       ],
     },
     {
@@ -68,24 +74,60 @@ export default function Navbar() {
         </Box>
         <Stack>
           <Flex gap="2">
-            <Button
-              border="solid 2px #9000FF"
-              borderRadius="15px"
-              height="30px"
-              width="80px"
-              onClick={goSignInPage}
-            >
-              로그인
-            </Button>
-            <Button
-              border="solid 2px #9000FF"
-              borderRadius="15px"
-              height="30px"
-              width="80px"
-              onClick={goSignupPage}
-            >
-              회원가입
-            </Button>
+            {signined ? (
+              <>
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="80px"
+                  onClick={goSignInPage}
+                >
+                  로그인
+                </Button>
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="80px"
+                  onClick={goSignupPage}
+                >
+                  회원가입
+                </Button>
+              </>                
+            ) : (
+              <Box display="flex" flexDirection="column" gap="5px">
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="80px"
+                  onClick={goLogout}
+                >
+                  로그아웃
+                </Button>
+                <Box display="flex" flexDirection="row" gap="5px">
+                  <Button
+                    border="solid 2px #9000FF"
+                    borderRadius="15px"
+                    height="30px"
+                    width="80px"
+                    onClick={goLogout}
+                  >
+                    팔로우
+                  </Button>
+                  <Button
+                    border="solid 2px #9000FF"
+                    borderRadius="15px"
+                    height="30px"
+                    width="80px"
+                    onClick={goLogout}
+                  >
+                    팔로잉
+                  </Button>
+                </Box>
+              </Box>
+            )}  
           </Flex>
         </Stack>
         <AccordionRoot collapsible defaultValue={["b"]}>
@@ -102,6 +144,7 @@ export default function Navbar() {
                     color="white"
                     display="block"
                     paddingY="1"
+                    onClick={linkItem.onclick}
                   >
                     <Text fontSize="sm">{linkItem.label}</Text>
                   </Link>
@@ -111,13 +154,8 @@ export default function Navbar() {
           ))}
         </AccordionRoot>
       </Stack>
-      {openSearchModal && 
-          <Search 
-            isOpen={openSearchModal}
-            onClose={toggleSearchModal}
-            handleChangeSearch={handleChangeSearch}
-          />
-        }
+      {openUserHeader && <Search isOpen={openUserHeader} onClose={() => {setOpenUserHeader()}}/>}
     </Flex>
   );
 }
+

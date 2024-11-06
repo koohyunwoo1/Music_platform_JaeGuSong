@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Text, Button } from '@chakra-ui/react';
 import CommunityButton from './community-button';
 import Modal from '../common/Modal';
@@ -17,8 +17,13 @@ const CrewHeader: React.FC = () => {
       handleCrewFollowModal,
       handleCrewJoinModal,
       handleCrewWithdrawModal,
-      handleCrewMembers
+      handleCrewMembers,
+      getCrewInfo
     } = UseCommunityCrew();
+
+    useEffect(() => {
+      getCrewInfo()
+    }, [])
 
   return (
     <>

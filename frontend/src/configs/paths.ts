@@ -32,6 +32,7 @@ const paths = {
   // community
   community: {
     main: `${PATH.community}`,
+    myCommunity: `${PATH.community}/my-community`,
     create: `${PATH.community}/create`,
     detail: (id: number) => `${PATH.community}/detail/${id}`,
     update: (id: number) => `${PATH.community}/update/${id}`,

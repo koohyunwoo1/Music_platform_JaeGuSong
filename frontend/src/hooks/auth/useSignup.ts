@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SignupFormData, SignupInputFields } from '@/configs/auth/formInputDatas';
 import axios, { AxiosError } from 'axios';
@@ -33,7 +33,6 @@ const useSignup = () => {
         phoneNumber: '',
         profileImage: '/profileImage.png'
     });
-
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -133,30 +132,48 @@ const useSignup = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         console.log('formData:', formData)
-           
-        const formDataToSubmit = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value) formDataToSubmit.append(key, value instanceof File ? value : String(value));
-        })
-        // 백한테 회원가입 정보 보내기
-        try {
-            console.log('회원가입 시도')
-            const response = await axios.post(
+
+        const joinFormData = new FormData();
+
+        const joinDto = {
+            birth: formData.birthday,
+            name : formData.userName,
+            nickname: formData.nickname,
+            region: formData.region,
+            genre: formData.genre,
+            email: formData.userId,
+            password: formData.password,
+            gender: formData.gender,
+            position: formData.position,
+        };
+
+        joinFormData.append(
+            "joinDto",
+            new Blob([JSON.stringify(joinDto)], { type: "application/json", })
+        );
+
+        if (formData.profileImage) {
+            joinFormData.append("profileImage", formData.profileImage);
+            console.log('이미ㅣㅈ 있어서 전송')
+        }
+        
+        // const formDataToSubmit = new FormData();
+        // Object.entries(formData).forEach(([key, value]) => {
+            //     if (value) formDataToSubmit.append(key, value instanceof File ? value : String(value));
+            // })
+            // 백한테 회원가입 정보 보내기
+            try {
+                console.log('회원가입 시도')
+                console.log(joinDto)
+                console.log(joinFormData.get('profileImage'))
+                const response = await axios.post(
                 // URL 고치기
                  `${API_URL}/api/auth/join`,
-                {
-                    "email" : formData.userId,
-                    "password" : formData.password,
-                    "name" : formData.userName,
-                    "nickname" : formData.nickname,
-                    "gender" : formData.gender,
-                    "birth" : formData.birthday,
-                    "region" : formData.region,
-                    "position" :formData.position,
-                    "genre" : formData.genre,
-                    "profileImage" : formData.profileImage
-                },
-            );
+                joinFormData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data", // 파일 업로드를 위한 헤더
+                    },
+            });
                navigate(paths.auth.signIn)
             console.log('나 성공!', response.data)
         } catch (error) {
@@ -208,6 +225,10 @@ const useSignup = () => {
         });
     };
 
+    useEffect(() => {
+        console.log('회우너가입하자', formData)
+    }, [formData])
+
     return {
         notices,
         verifyBtn,
@@ -217,6 +238,7 @@ const useSignup = () => {
         formData,
         currentStep,
         openSignupModal,
+        setFormData,
         handleChange,
         handleBlur,
         sendVerifyNumber,
