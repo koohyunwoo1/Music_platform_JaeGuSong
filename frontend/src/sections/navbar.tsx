@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, Link, Stack, Text, Input } from "@chakra-ui/react";
+import { Box, Button, Flex, Image, Link, Stack, Text } from "@chakra-ui/react";
 import {
   AccordionItem,
   AccordionItemContent,
@@ -7,24 +7,32 @@ import {
 } from "@/components/ui/accordion";
 import paths from "@/configs/paths";
 import useAuth from "@/hooks/auth/useAuth";
-import useSearch from "@/hooks/navbar/useSearch";
-import UseSingnin from "@/hooks/auth/useSignin";
 import useHeaderStore from "@/stores/headerStore";
 import Search from "@/components/community/search";
 import useCommunityMain from "@/hooks/community/useCommunityMain";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { goSignupPage, goSignInPage, goLogout } = useAuth();
-  // const { openSearchModal, setOpenSearchModal } = useSearch();
-  const { signined } = UseSingnin();
+  const { openUserHeader, setOpenUserHeader } = useHeaderStore(
+    (state) => state
+  );
+  const { openSearchModal, toggleSearchModal, handleChangeSearch } =
+    useCommunityMain();
 
-  const { openUserHeader, setOpenUserHeader } = useHeaderStore(state => state)
-  const {
-    openSearchModal,
-    toggleSearchModal,
-    handleChangeSearch
-  } = useCommunityMain();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // 로컬 스토리지에 jwtToken이 있는지 확인
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    setIsLoggedIn(!!token); // 토큰이 있으면 true, 없으면 false
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwtToken"); // 로그아웃 시 토큰 삭제
+    setIsLoggedIn(false); // 상태 업데이트
+    goLogout();
+  };
 
   const items = [
     {
@@ -32,7 +40,12 @@ export default function Navbar() {
       title: "커뮤니티",
       text: [
         { label: "메인", path: paths.community.main },
-        { label: "검색", onclick: () => {setOpenUserHeader()}},
+        {
+          label: "검색",
+          onclick: () => {
+            setOpenUserHeader();
+          },
+        },
         { label: "내 피드", path: paths.community.myCommunity },
       ],
     },
@@ -57,9 +70,7 @@ export default function Navbar() {
     {
       value: "d",
       title: "세팅",
-      text: [
-        { label: "마이페이지", path: paths.setting.mypage },
-      ],
+      text: [{ label: "마이페이지", path: paths.setting.mypage }],
     },
   ];
 
@@ -67,14 +78,43 @@ export default function Navbar() {
     <Flex>
       <Stack padding="0" fontFamily="MiceGothicBold" flex="1">
         <Box width="100%" margin="0" paddingY="4">
-          {/* public 폴더에서 인식 */}
           <Link href={paths.main}>
             <Image src="/common/Logo.png" alt="Logo.png" />
           </Link>
         </Box>
         <Stack>
           <Flex gap="2">
-            {signined ? (
+            {isLoggedIn ? (
+              <Box display="flex" flexDirection="column" gap="5px">
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="80px"
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </Button>
+                <Box display="flex" flexDirection="row" gap="5px">
+                  <Button
+                    border="solid 2px #9000FF"
+                    borderRadius="15px"
+                    height="30px"
+                    width="80px"
+                  >
+                    팔로우
+                  </Button>
+                  <Button
+                    border="solid 2px #9000FF"
+                    borderRadius="15px"
+                    height="30px"
+                    width="80px"
+                  >
+                    팔로잉
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
               <>
                 <Button
                   border="solid 2px #9000FF"
@@ -94,40 +134,8 @@ export default function Navbar() {
                 >
                   회원가입
                 </Button>
-              </>                
-            ) : (
-              <Box display="flex" flexDirection="column" gap="5px">
-                <Button
-                  border="solid 2px #9000FF"
-                  borderRadius="15px"
-                  height="30px"
-                  width="80px"
-                  onClick={goLogout}
-                >
-                  로그아웃
-                </Button>
-                <Box display="flex" flexDirection="row" gap="5px">
-                  <Button
-                    border="solid 2px #9000FF"
-                    borderRadius="15px"
-                    height="30px"
-                    width="80px"
-                    onClick={goLogout}
-                  >
-                    팔로우
-                  </Button>
-                  <Button
-                    border="solid 2px #9000FF"
-                    borderRadius="15px"
-                    height="30px"
-                    width="80px"
-                    onClick={goLogout}
-                  >
-                    팔로잉
-                  </Button>
-                </Box>
-              </Box>
-            )}  
+              </>
+            )}
           </Flex>
         </Stack>
         <AccordionRoot collapsible defaultValue={["b"]}>
@@ -154,8 +162,14 @@ export default function Navbar() {
           ))}
         </AccordionRoot>
       </Stack>
-      {openUserHeader && <Search isOpen={openUserHeader} onClose={() => {setOpenUserHeader()}}/>}
+      {openUserHeader && (
+        <Search
+          isOpen={openUserHeader}
+          onClose={() => {
+            setOpenUserHeader();
+          }}
+        />
+      )}
     </Flex>
   );
 }
-
