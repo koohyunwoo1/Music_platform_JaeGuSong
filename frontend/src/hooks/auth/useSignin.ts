@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 const UseSingnin = () => {
-    const [ signined, setSignined ] = useState<boolean>(false);
+  const [signined, setSignined] = useState<boolean>(false);
 
-    return {
-        setSignined,
-        signined
-    }
-}
+  return {
+    setSignined,
+    signined,
+  };
+};
 
 export default UseSingnin;
