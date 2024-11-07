@@ -26,7 +26,8 @@ const ArticleItems: React.FC<ArticleItemsProps> = ({ article }) => {
       paddingLeft="10px"
       cursor="pointer"
     >
-      <Text textStyle="xl">{article.title}</Text>
+      {/* <Text textStyle="xl">{article.title}</Text> */}
+      <Text textStyle="xl">ddddddd</Text>
     </Box>
   );
 };

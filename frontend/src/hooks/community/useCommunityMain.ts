@@ -6,6 +6,7 @@ const useCommunityMain = () => {
     const [ changeHeader, setChangeHeader ] = useState<boolean>(true);
     const [ myFeedArticleItems, setMyFeedArticleItems ] = useState<ArticleItem[]>([]);
 
+
     const API_URL =import.meta.env.VITE_API_URL;
 
     const goMusicMainFeed = () => {
@@ -22,19 +23,19 @@ const useCommunityMain = () => {
 
     // 게시물 목록 가져오기
     const getArticleList = async () => {
-    // 토큰 가져오기
-    // userSeq 가져오기
-    try {
-        console.log('게시물 목록 가져올거임')
-    //   const response = await axios.get(`${API_URL}/api/boards/${userSeq}`),
-    //   headers: {
-    //     access: `${token}`
-    //   },
-    // setMyFeedArticleItems(response.data);
-    } catch(error) {
-      console.error(error)
+
+        try {
+            console.log('게시물 목록 가져올거임')
+        //   const response = await axios.get(`${API_URL}/api/boards/${userSeq}`),
+        //   headers: {
+        //     access: `${token}`
+        //   },
+        // setMyFeedArticleItems(response.data);
+        } catch(error) {
+          console.error(error)
+        }
+
     }
-      };
 
     // useEffect(() => {
     //     getArticleList();

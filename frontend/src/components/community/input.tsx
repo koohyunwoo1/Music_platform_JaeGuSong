@@ -1,72 +1,106 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
-import { CreateArticleData, CreateArticleFields } from '@/configs/community/createArticleForm';
+import React, { useState, ChangeEvent } from 'react';
 import { Box, Button, Input as ChakraInput, Textarea } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import paths from '@/configs/paths';
 
 const Input: React.FC = () => {
-    const [previewFile, setPreviewFile] = useState<string | null>(null);
+    const navigate = useNavigate()
     const API_URL = import.meta.env.VITE_API_URL;
-
-    const [formData, setFormData] = useState<CreateArticleData>({
+    
+    const [formData, setFormData] = useState({
         title: '',
         content: '',
-        attachmentFile: '',
+        attachmentFile: null as File | null,
         static: ''
     });
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, files } = e.target as HTMLInputElement;
-
-        if (name === 'Images' && files) {
-            const file = files[0];
-            setFormData((prevFormData) => ({ ...prevFormData, Images: file }));
-            const previewUrl = URL.createObjectURL(file);
-            setPreviewFile(previewUrl);
+        const { name, type, value, files } = e.target as HTMLInputElement;
+    
+        if (type === 'file' && files) {
+            const selectedFile = files[0]; // 첫 번째 파일을 가져옵니다.
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                attachmentFile: selectedFile, // 파일을 formData의 attachmentFile 상태에 저장
+            }));
         } else {
-            setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                [name]: value, // 텍스트 값 처리
+            }));
         }
     };
 
-    const handleSubmit = async (e: FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+    
         const storedToken = localStorage.getItem('jwtToken');
     
         const formDataToSubmit = new FormData();
     
-        // title이 비어있지 않으면 formDataToSubmit에 추가
-        if (formData.title) {
-            formDataToSubmit.append("title", formData.title);
-        }
-        // static이 비어있지 않으면 formDataToSubmit에 추가 (PUBLIC 또는 PRIVATE 값으로 변환)
-        if (formData.static) {
-            formDataToSubmit.append("state", formData.static === '공개' ? 'PUBLIC' : 'PRIVATE');
-        }
-        // content가 비어있지 않으면 formDataToSubmit에 추가
-        if (formData.content) {
-            formDataToSubmit.append("content", formData.content);
-        }
-        // attachmentFile이 File 인스턴스인지 확인 후 추가
-        if (formData.attachmentFile instanceof File) {
-            formDataToSubmit.append("attachmentFile", formData.attachmentFile);
-        }
+        // if (formData.attachmentFile) {
+        //     console.log('파일 추가 시도');
+        //     formDataToSubmit.append('files', formData.attachmentFile);
+        // }
     
+        const boardRequestDto = {
+            artistSeq: 8,
+            title: formData.title,
+            state: '공개', 
+            content: formData.content,
+        };
+    
+        formDataToSubmit.append(
+            'boardRequestDto',
+            new Blob([JSON.stringify(boardRequestDto)], { type: 'application/json' })
+        );
+
+       if (formData.attachmentFile) {
+            console.log('파일 추가 시도');
+            formDataToSubmit.append('files', formData.attachmentFile);
+            console.log('성공?')
+        }
+        // if(formData.attachmentFile!=null)
+        //     formData.attachmentFile.forEach(file=>formDataToSubmit.append('files', file))
+
+        console.log('formDataToSubmit', formDataToSubmit)
+        // console.log('boared', boardRequestDto)
+
+        
         try {
-            console.log('토큰:', storedToken);
-            console.log('띠용', formDataToSubmit);
+            // console.log(formDataToSubmit)
+            // formDataToSubmit.forEach((value, key) => {
+            //     console.log(key, '=>', value);
+            // });
+            formDataToSubmit.forEach((value, key) => {
+                if (value instanceof Blob && value.type === 'application/json') {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const jsonContent = reader.result;
+                        console.log(key, '=>', jsonContent);  // JSON 내용 출력
+                    };
+                    reader.readAsText(value);  // Blob을 텍스트로 읽기
+                } else {
+                    console.log(key, '=>', value);  // 파일이나 일반 텍스트일 경우 그대로 출력
+                }
+            });
             const response = await axios.post(
-                `${API_URL}/api/boards`,
+                // `${API_URL}/api/boards`,
+                'http://localhost:8080/api/boards',
                 formDataToSubmit,
+                // boardRequestDto,
                 {
                     headers: {
                         Authorization: `Bearer ${storedToken}`,
                         "Content-Type": "multipart/form-data",
                     },
-                    withCredentials: true,
                 }
             );
-            console.log(response.data);
+            console.log('Response:', response.data);
+            navigate(paths.community.myCommunity)
         } catch (error) {
-            console.error('게시물 작성 중 오류 발생:', error);
+            console.error('Error while submitting form:', error);
         }
     };
     
@@ -75,47 +109,40 @@ const Input: React.FC = () => {
     return (
         <Box width="100%" maxW="md" mx="auto">
             <form onSubmit={handleSubmit}>
-                {CreateArticleFields.map((field, index) => (
-                    <Box key={index} mb={4}>
-                        <label>{field.label}</label>
-                        {field.type === 'select' ? (
-                            <select
-                                name={field.name}
-                                onChange={handleChange}
-                                value={field.name !== 'Images' ? (formData[field.name as keyof CreateArticleData] as string || '') : undefined}
-                                style={{ color: 'black' }}
-                            >
-                                <option value='' style={{ color: 'black' }}>선택</option>
-                                {field.options?.map((option, idx) => (
-                                    <option key={idx} value={option} style={{ color: 'black' }}>
-                                        {option}
-                                    </option>
-                                ))}
-                            </select>
-                        ) : field.type === 'textarea' ? (
-                            <Textarea
-                                name={field.name}
-                                value={formData[field.name as keyof CreateArticleData] as string || ''}
-                                onChange={handleChange}
-                                placeholder={field.name === 'content' ? '내용을 입력해주세요' : ''}
-                                color="white"
-                                size="lg"
-                                resize="vertical"
-                                height="180px" 
-                            />
-                        ) : (
-                            <ChakraInput
-                                type={field.type}
-                                name={field.name}
-                                value={field.name !== 'Images' ? (formData[field.name as keyof CreateArticleData] as string || '') : undefined}
-                                onChange={handleChange}
-                                placeholder={field.name === 'title' ? '제목을 입력해주세요.' : ''}
-                                accept={field.type === 'file' ? 'image/*' : undefined}
-                                size="lg"
-                            />
-                        )}
-                    </Box>
-                ))}
+                <Box mb={4}>
+                    <label>제목</label>
+                    <ChakraInput
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        placeholder="제목을 입력해주세요."
+                        size="lg"
+                    />
+                </Box>
+
+                <Box mb={4}>
+                    <label>내용</label>
+                    <Textarea
+                        name="content"
+                        value={formData.content}
+                        onChange={handleChange}
+                        placeholder="내용을 입력해주세요."
+                        size="lg"
+                        resize="vertical"
+                    />
+                </Box>
+
+                <Box mb={4}>
+                    <label>파일 첨부</label>
+                    <ChakraInput
+                        type="file"
+                        name="attachmentFile" // name을 attachmentFile로 수정
+                        onChange={handleChange}
+                        accept="audio/*, image/*"
+                    />
+                </Box>
+
                 <Button 
                     type="submit"
                     border="solid 2px #9000FF"
