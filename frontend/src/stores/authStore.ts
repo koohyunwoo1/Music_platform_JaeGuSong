@@ -1,24 +1,25 @@
-import { create } from 'zustand';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface UserInfoProps {
-    seq: number;
-    email: string;
-    name: string;
-    gender: string;
-    birth: string;
-    nickname: string;
-    position: string;
-    region: number;
-    crews?: any[];
-    profileImage?: File | string | null;
+interface AuthState {
+  artistSeq: string | null;
+  setArtistSeq: (seq: string) => void;
 }
 
-const useAuthStore = create<{
-    userInfo: UserInfoProps | null;
-    setUserInfo: (info: UserInfoProps) => void;
-}>((set) => ({
-    userInfo: null,
-    setUserInfo: (info: UserInfoProps) => set({ userInfo: info})
-}));
+const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      artistSeq: null,
+      setArtistSeq: (seq) => {
+        console.log("Setting artistSeq in zustand:", seq);
+        set({ artistSeq: seq });
+      },
+    }),
+    {
+      name: "auth-storage", // localStorage에 저장될 키 이름
+      getStorage: () => localStorage, // storage 방식 지정 (localStorage)
+    }
+  )
+);
 
 export default useAuthStore;

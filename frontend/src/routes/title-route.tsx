@@ -5,6 +5,7 @@ import DividerUploadView from "../pages/divider/upload-view";
 // import CommunityView from "@/pages/community/community-view";
 import WsListView from "@/pages/workspace/ws-list-view";
 import WsDetailView from "@/pages/workspace/ws-detail-view";
+import DividerAnnouncementView from "@/pages/divider/announcement-view";
 
 const titleRoute: RouteObject[] = [
   {
@@ -18,6 +19,10 @@ const titleRoute: RouteObject[] = [
       {
         path: paths.divider.upload,
         element: <DividerUploadView />,
+      },
+      {
+        path: paths.divider.announcement,
+        element: <DividerAnnouncementView />,
       },
       {
         path: paths.workspace.list,
