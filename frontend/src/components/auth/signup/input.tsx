@@ -3,7 +3,13 @@ import {
   SignupFormData,
   SignupInputFields,
 } from "@/configs/auth/formInputDatas";
-import { Box, Button, Input as ChakraInput, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input as ChakraInput,
+  Text,
+} from "@chakra-ui/react";
 import Modal from "@/components/common/Modal";
 import useSignup from "@/hooks/auth/useSignup";
 
@@ -17,6 +23,7 @@ const Input: React.FC = () => {
     formData,
     currentStep,
     openSignupModal,
+    verifyMessage,
     setFormData,
     handleChange,
     handleBlur,
@@ -52,53 +59,81 @@ const Input: React.FC = () => {
         {currentStep === 0 && (
           <>
             <Box mb={4}>
-              <label>아이디</label>
-              <ChakraInput
-                type="text"
-                name="userId"
-                value={formData.userId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="abc@abc.com"
-                style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
-                }}
-              />
+              <Text fontWeight="medium" color="white" mb={2}>
+                아이디
+              </Text>
+              <Flex alignItems="center" gap={2}>
+                <ChakraInput
+                  type="text"
+                  name="userId"
+                  value={formData.userId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="abc@abc.com"
+                  borderRadius="md"
+                  boxShadow="sm"
+                  flex="1"
+                />
+                <Button
+                  onClick={sendVerifyNumber}
+                  disabled={!verifyBtn}
+                  colorScheme="purple"
+                  size="sm"
+                  ml={2}
+                  _hover={{ backgroundColor: "gray", color: "black" }}
+                >
+                  인증 번호 전송
+                </Button>
+              </Flex>
               {notices["userId"] && (
-                <div style={{ color: "red" }}>{notices["userId"]}</div>
+                <Text color="red.500" mt={2}>
+                  {notices["userId"]}
+                </Text>
               )}
-              <Button onClick={sendVerifyNumber} disabled={!verifyBtn}>
-                인증 번호 전송
-              </Button>
+              {verifyMessage && (
+                <Text fontWeight="bold" color="green.500" mt={2}>
+                  {verifyMessage}
+                </Text>
+              )}
             </Box>
+
             <Box mb={4}>
-              <label>인증 번호</label>
-              <ChakraInput
-                type="text"
-                name="confirmNumber"
-                value={formData.confirmNumber}
-                onChange={handleChange}
-                placeholder="인증 번호 입력"
-                style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
-                }}
-              />
-              {verifyNumber && (
-                <Button onClick={checkverifyNumber} disabled={!verifyNumber}>
+              <Text fontWeight="medium" color="white" mb={2}>
+                인증 번호
+              </Text>
+              <Flex alignItems="center" gap={2}>
+                <ChakraInput
+                  type="text"
+                  name="confirmNumber"
+                  value={formData.confirmNumber}
+                  onChange={handleChange}
+                  placeholder="인증 번호 입력"
+                  borderRadius="md"
+                  boxShadow="sm"
+                  flex="1"
+                />
+                <Button
+                  onClick={checkverifyNumber}
+                  disabled={!verifyNumber}
+                  colorScheme="purple"
+                  size="sm"
+                  ml={2}
+                  _hover={{ backgroundColor: "gray", color: "black" }}
+                >
                   인증
                 </Button>
+              </Flex>
+              {submitSignup && (
+                <Text color="green.500" mt={2}>
+                  인증되었습니다.
+                </Text>
               )}
-              {submitSignup && "인증되었습니다."}
             </Box>
           </>
         )}
         {currentStep === 1 && (
           <>
-            <Box mb={4}>
+            <Box mb={4} mt={2}>
               <label>비밀번호</label>
               <ChakraInput
                 type="password"
@@ -111,6 +146,7 @@ const Input: React.FC = () => {
                   color: "black",
                   background: "white",
                   borderColor: "black",
+                  marginTop: "20px",
                 }}
               />
             </Box>
@@ -126,10 +162,20 @@ const Input: React.FC = () => {
                   color: "black",
                   background: "white",
                   borderColor: "black",
+                  marginTop: "20px",
                 }}
               />
               {notices["confirmPassword"] && (
-                <div style={{ color: "red" }}>{notices["confirmPassword"]}</div>
+                <Text
+                  color={
+                    notices["confirmPassword"] === "비밀번호가 일치합니다."
+                      ? "green.500"
+                      : "red.500"
+                  }
+                  mt={2}
+                >
+                  {notices["confirmPassword"]}
+                </Text>
               )}
             </Box>
           </>
@@ -158,6 +204,7 @@ const Input: React.FC = () => {
                   background: "white",
                   borderColor: "black",
                   padding: "0.5rem",
+                  marginLeft: "10px",
                 }}
               >
                 <option>선택</option>
@@ -183,6 +230,7 @@ const Input: React.FC = () => {
                   background: "white",
                   borderColor: "black",
                   padding: "0.5rem",
+                  marginLeft: "10px",
                 }}
               />
             ) : (
@@ -212,25 +260,45 @@ const Input: React.FC = () => {
                   background: "white",
                   borderColor: "black",
                   padding: "0.5rem",
+                  marginTop: "20px",
                 }}
               />
             )}
             {notices[SignupInputFields[currentStep + 2].name] && (
-              <div style={{ color: "red" }}>
+              <div style={{ color: "red", marginTop: "10px" }}>
                 {notices[SignupInputFields[currentStep + 2].name]}
               </div>
             )}
           </Box>
         )}
         <Box display="flex" justifyContent="space-between" mt={4}>
-          {currentStep > 0 && <Button onClick={handlePrevStep}>이전</Button>}
+          {currentStep > 0 && (
+            <Button
+              onClick={handlePrevStep}
+              style={{ marginTop: "20px" }}
+              _hover={{ backgroundColor: "gray", color: "black" }}
+            >
+              이전
+            </Button>
+          )}
           {currentStep >= 0 && currentStep < 10 && (
-            <Button onClick={handleNextStep} disabled={!isStepValid}>
+            <Button
+              onClick={handleNextStep}
+              disabled={!isStepValid}
+              style={{ marginTop: "20px" }}
+              _hover={{ backgroundColor: "gray", color: "black" }}
+            >
               다음
             </Button>
           )}
           {currentStep == 10 && (
-            <Button onClick={() => setOpenSignupModal(true)}>회원가입</Button>
+            <Button
+              onClick={() => setOpenSignupModal(true)}
+              marginTop="20px"
+              _hover={{ backgroundColor: "gray", color: "black" }}
+            >
+              회원가입
+            </Button>
           )}
           {currentStep == 10 && (
             <Modal
@@ -245,14 +313,19 @@ const Input: React.FC = () => {
                   margin="10px"
                   display="flex"
                   justifyContent="center"
-                  gap="10px"
+                  gap="30px"
                 >
-                  <Button type="submit" width="75px">
+                  <Button
+                    type="submit"
+                    width="75px"
+                    _hover={{ backgroundColor: "gray", color: "black" }}
+                  >
                     예
                   </Button>
                   <Button
                     onClick={() => setOpenSignupModal(false)}
                     width="75px"
+                    _hover={{ backgroundColor: "gray", color: "black" }}
                   >
                     아니요
                   </Button>
@@ -262,8 +335,6 @@ const Input: React.FC = () => {
           )}
         </Box>
       </form>
-      {/* </Box>
-      </form> */}
     </Box>
   );
 };

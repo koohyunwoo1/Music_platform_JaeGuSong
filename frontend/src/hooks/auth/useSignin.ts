@@ -1,12 +1,14 @@
-import { useState } from "react";
+// 일단은 필요 없는 코드
 
-const UseSingnin = () => {
-  const [signined, setSignined] = useState<boolean>(false);
+// import { useState } from "react";
 
-  return {
-    setSignined,
-    signined,
-  };
-};
+// const UseSingnin = () => {
+//   const [signined, setSignined] = useState<boolean>(false);
 
-export default UseSingnin;
+//   return {
+//     setSignined,
+//     signined,
+//   };
+// };
+
+// export default UseSingnin;
