@@ -2,9 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import paths from "@/configs/paths";
 import { AsyncLocalStorage } from "async_hooks";
+import UseSingnin from "./useSignin";
 
 const useAuth = () => {
     const [ token, setToken ] = useState<string>('');
+    const { setSignined } = UseSingnin();
+    const [ mySeq, setMySeq ] = useState<Number>(0);
     const navigate = useNavigate();
 
     const goSignupPage = () => {
@@ -16,6 +19,7 @@ const useAuth = () => {
     }
     
     const goLogout = () => {
+        setSignined(false)
         localStorage.removeItem('jwtToken');
         navigate(paths.auth.signIn)
     }
@@ -30,10 +34,12 @@ const useAuth = () => {
 
     return {
         token,
+        mySeq,
         goSignupPage,
         goSignInPage,
         goLogout,
-        getStoredToken
+        getStoredToken,
+        setMySeq
     }
 }
 

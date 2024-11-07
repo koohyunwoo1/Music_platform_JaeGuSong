@@ -1,29 +1,48 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, Button } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import paths from '@/configs/paths';
 import CommunityButton from './community-button';
 import Modal from '../common/Modal';
 import UseCommunityCrew from '@/hooks/community/useCommunityCrew';
 import CrewMemeberListModal from './crew-member-list-modal';
 
 const CrewHeader: React.FC = () => {
+    const navigate = useNavigate();
+
     const {
       openCrewFollowModal,
       openCrewJoinModal,
       openCrewWithdrawModal,
       openCrewMembersModal,
+      crewNameSeq,
+      crewName,
+      crewManagerName,
+      crewProfileImage,
+      crewMakeDate,
+      crewMembers,
+      myCrewsSeq,
+      myName,
       goCrewFollow,
       goJoinCrew,
       goWithdrawCrew,
       handleCrewFollowModal,
       handleCrewJoinModal,
+      handleCrewApproveModal,
       handleCrewWithdrawModal,
       handleCrewMembers,
-      getCrewInfo
+      preGetCrewInfo
     } = UseCommunityCrew();
 
     useEffect(() => {
-      getCrewInfo()
-    }, [])
+      if (!myCrewsSeq || !crewNameSeq) {
+        preGetCrewInfo();
+      }
+    }, [myCrewsSeq, crewNameSeq]);
+
+    const goCreateArticle = () => {
+      navigate(paths.community.create);
+  }
 
   return (
     <>
@@ -40,33 +59,60 @@ const CrewHeader: React.FC = () => {
             flexDirection="row"
             gap="5px"
           >
-            <Text>크루 정보 받아올거임</Text>
+            <Text textStyle="3xl" marginRight="20px">{crewName}</Text>
             <CommunityButton 
               title='팔로우' 
               onClick={handleCrewFollowModal}
             />
-            <CommunityButton 
-              title='가입요청' 
-              onClick={handleCrewJoinModal}
-            />
+            { !myCrewsSeq.includes(crewNameSeq) && 
+              <CommunityButton 
+                title='가입요청' 
+                onClick={handleCrewJoinModal}
+              />
+            }
+            <Button variant="ghost" color="white" onClick={handleCrewMembers}>크루원 보기</Button>
+            { myName === crewManagerName && 
+              <Button 
+              onClick={handleCrewApproveModal}
+              variant="ghost" 
+              color="white" 
+              >
+                가입 요청 확인하기
+              </Button>
+            }
           </Box> 
-          <Button onClick={handleCrewMembers}>크루원 보기</Button>
-          <Text>크루장</Text>
-          <Text>개설일</Text>
+          <Box marginTop="10px">
+            <Text>크루장: {crewManagerName}</Text>
+            <Text>개설일: {crewMakeDate}</Text>
+          </Box>            
         </Box>        
         <Box 
           height="20px"
           display="flex"
           marginTop="20px"
           justifyContent="flex-end"
+          gap="5px"
         >
-          <CommunityButton 
-            title='탈퇴하기'
-            onClick={handleCrewWithdrawModal}
-          />
-        </Box>        
-      </Box>
-
+          { myName === crewManagerName && 
+            <>
+              <CommunityButton 
+                title='글쓰기'
+                onClick={goCreateArticle}
+              />
+              <CommunityButton
+                title='음원피드 올리기'
+                onClick={goCreateArticle}
+              />
+            </>
+          }
+          { myCrewsSeq.includes(crewNameSeq) && 
+            <CommunityButton 
+              title='탈퇴하기'
+              onClick={handleCrewWithdrawModal}
+            />
+          }  
+        </Box>
+      </Box>        
       {openCrewFollowModal && 
         <Modal 
           isOpen={openCrewFollowModal}

@@ -64,6 +64,7 @@ const Header: React.FC =  () => {
           alignItems="center"
           gap="5px"
         >
+          <img></img>
           <Text textStyle="3xl" marginTop="15px">{myNickname}</Text>
           <Text textStyle="xl" marginTop="15px">님의 피드</Text>
         </Box>          

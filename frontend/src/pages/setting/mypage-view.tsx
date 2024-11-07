@@ -50,9 +50,8 @@ const MyPageView: React.FC = () => {
   };
 
   // 크루 생성 함수 수정
-  const handleMakeCrew = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMakeCrew = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('ㄴㄴ 된')
     // 파일이 선택된 경우 FormData에 추가
     if (file) {
       formData.append('profileImage', file);
@@ -61,36 +60,36 @@ const MyPageView: React.FC = () => {
     makeCrew(makeCrewFormData); // makeCrew 함수에 FormData 전달
   };
 
-  // useEffect(() => {
-  //   const fetchUserInfo = async () => {
-  //     const storedToken = localStorage.getItem('jwtToken');
-  //     if (storedToken) {
-  //       try {
-  //         console.log('토큰토큰', storedToken)
-  //         const response = await axios.get(`${API_URL}/api/user`, {
-  //           headers: {
-  //             Authorization: `Bearer ${storedToken}`,
-  //           },
-  //         });
-  //         console.log('저장할거양ㅇㅇㅇ', response.data)
-  //         setMyInfo(response.data)
-  //         setCrewsInfo(response.data.crews);
-  //       } catch (error) {
-  //         console.warn('Error during API request:', error);
-  //       }
-  //     } else {
-  //       console.warn('No stored token found');
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const storedToken = localStorage.getItem('jwtToken');
+      if (storedToken) {
+        try {
+          console.log('토큰토큰', storedToken)
+          const response = await axios.get(`${API_URL}/api/user`, {
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+            },
+          });
+          console.log('저장할거양ㅇㅇㅇ', response.data)
+          setMyInfo(response.data)
+          setCrewsInfo(response.data.crews);
+        } catch (error) {
+          console.warn('Error during API request:', error);
+        }
+      } else {
+        console.warn('No stored token found');
+      }
+    };
 
-  //   fetchUserInfo(); // 유저 정보 가져오기
-  // }, []); // 의존성 추가
+    fetchUserInfo(); // 유저 정보 가져오기
+  }, []); // 의존성 추가
 
-  // useEffect(() => {
-  //   if (crewsInfo) {
-  //     getMyCrews(crewsInfo);
-  //   }
-  // }, [crewsInfo]);
+  useEffect(() => {
+    if (crewsInfo) {
+      getMyCrews(crewsInfo);
+    }
+  }, [crewsInfo]);
 
   return (
     <>
@@ -196,7 +195,7 @@ const MyPageView: React.FC = () => {
           </Box>
         </Modal>
       )}
-      {/* <MyInfo  myInfo={myInfo}/> */}
+      <MyInfo  myInfo={myInfo}/>
     </>
   );
 };

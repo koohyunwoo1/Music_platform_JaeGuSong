@@ -12,6 +12,14 @@ const UseCommunityCrew = () => {
     const [ openCrewWithdrawModal, setopenCrewWithdrawModal ] = useState<boolean>(false);
     const [ openCrewMembersModal, setOpenCrewMembersModal ] = useState<boolean>(false);
     const [ openMakeCrewModal, setMakeCrewModal ] = useState<boolean>(false);
+    const [ crewName, setCrewName ] = useState<string>('');
+    const [ crewNameSeq, setCrewNameSeq ] = useState<string>('');
+    const [ crewManagerName, setCrewManagerName ] = useState<string>('');
+    const [ crewProfileImage, setCrewProfileImage ] = useState<string>('');
+    const [ crewMakeDate, setCrewMakeDate ] = useState<string>('');
+    const [ crewMembers, setCrewMembers ] = useState<any[]>([]);
+    const [ myCrewsSeq, setMyCrewsSeq ] = useState<any[]>([]);
+    const [ myName, setMyName ] = useState<string>('');
 
     const [ makeCrewFormData, setMakeCrewFormData ] = useState<MakeCrewFormData>({
         birth: new Date().toISOString().split('T')[0],
@@ -36,41 +44,76 @@ const UseCommunityCrew = () => {
     const goJoinCrew = async () => {
         setopenCrewJoinModal((prev) => !prev);
         // 크루 가입 요청 api 연결
-        // try {
-        //     const response = await axios.post(
-        //         `${API_URL}/api/crew`,
-        //         {
-        //             "crewSeq": crewSeq,
-        //         },
-        //         {
-        //             headers: {
-        //                 access: `${token}`
-        //             }
-        //         }
-        //     )
-        // } catch(error) {
-        //     console.warn(error)
-        // }
+        const storedToken = localStorage.getItem('jwtToken');
+        // 예시
+        const crewSeq =  4
+        try {
+            const response = await axios.post(
+                `${API_URL}/api/crew/join`,
+                {
+                    "crewSeq": crewSeq,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`
+                    }
+                }
+            )
+            console.log('크루 가입 신청 완료', response)
+        } catch(error) {
+            console.warn(error)
+        }
+    };
+
+    const handleCrewApproveModal = async () => {
+        // 크루장이 가입 요청 승인
+        const storedToken = localStorage.getItem('jwtToken');
+        // 요청 받았다고 리스트 필요함
+        // 일단은 예시 크루: 4, 유저:1
+        const userSeq = 1
+        const crewSeq = 4
+        // 이건 상황 봐가면서 계속 바꾸기
+        try {
+            console.log('승인받아', storedToken)
+            const response = await axios.patch(
+                `${API_URL}/api/crew/accept`,
+                {
+                    "userSeq": 8,
+                    "crewSeq": 4,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`
+                    },
+                }
+            )
+            console.log('크루 가입 신청 승인 완료', response)
+        } catch(error) {
+            console.warn(error)
+        }
     };
     
-    const goWithdrawCrew = () => {
+    const goWithdrawCrew = async () => {
         setopenCrewWithdrawModal((prev) => !prev);
+        console.log('내가 탈퇴하고 싶음', crewNameSeq)
+        const storedToken = localStorage.getItem('jwtToken');
         // 크루 탈퇴 api 연결
-        // try {
-        //     const response = await axios.delete(
-        //         `${API_URL}/api/crew/leave`,
-        //         {
-        //             "phone": phone,
-        //         },
-        //         {
-        //             headers: {
-        //                 access: `${token}`
-        //             }
-        //         }
-        //     )
-        // } catch(error) {
-        //     console.warn(error)
-        // }
+        try {
+            const response = await axios.delete(
+                `${API_URL}/api/crew/leave`,
+                {
+                    data: {
+                        "crewSeq" : crewNameSeq,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`
+                    },
+                }
+            )
+            console.log('나 크루 탈퇴했다! 빠이')
+        } catch(error) {
+            console.warn(error)
+        }
     };
     
     const handleCrewFollowModal = () => {
@@ -150,7 +193,31 @@ const UseCommunityCrew = () => {
 
     const getCrewInfo = async () => {
         const storedToken = localStorage.getItem('jwtToken');
-        console.log('으아앙악', storedToken)
+        // 임시
+        const crewSeq = 4
+        try {
+          const response = await axios.get(
+              `${API_URL}/api/crew/${crewSeq}`,
+            {
+              headers: {
+                Authorization: `Bearer ${storedToken}`
+              },
+            })
+            setCrewNameSeq(response.data.crewSeq)
+            setCrewName(response.data.nickname)
+            setCrewManagerName(response.data.manager.nickname)
+            setCrewMakeDate(response.data.birth)
+            setCrewMembers(response.data.crews)
+            setCrewProfileImage(response.data.profileImage)
+          } catch(error) {
+            console.warn(error)
+          }
+
+
+    }
+
+    const preGetCrewInfo = async () => {
+        const storedToken = localStorage.getItem('jwtToken');
         try {
           const response = await axios.get(
               `${API_URL}/api/user`,
@@ -158,13 +225,13 @@ const UseCommunityCrew = () => {
               headers: {
                 Authorization: `Bearer ${storedToken}`
               },
-              withCredentials: true,
             })
-            console.log(response.data)
+            setMyCrewsSeq(response.data.crews)
+            setMyName(response.data.nickname)
+            getCrewInfo()
           } catch(error) {
             console.warn(error)
           }
-
     }
     
 
@@ -178,6 +245,14 @@ const UseCommunityCrew = () => {
         openCrewMembersModal,
         openMakeCrewModal,
         makeCrewFormData,
+        crewNameSeq,
+        crewName,
+        crewManagerName,
+        crewProfileImage,
+        crewMakeDate,
+        crewMembers,
+        myCrewsSeq,
+        myName,
         goCrewFollow,
         goJoinCrew,
         goWithdrawCrew,
@@ -186,15 +261,15 @@ const UseCommunityCrew = () => {
         setopenCrewWithdrawModal,
         handleCrewFollowModal,
         handleCrewJoinModal,
+        handleCrewApproveModal,
         handleCrewWithdrawModal,
         handleCrewMembers,
         handleMakeCrewModal,
         handleChange,
         makeCrew,
         setMakeCrewFormData,
-        getCrewInfo
-        
+        preGetCrewInfo,
     }
-}
+};
 
 export default UseCommunityCrew;
