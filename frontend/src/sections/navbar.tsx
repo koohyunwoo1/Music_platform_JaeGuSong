@@ -8,12 +8,6 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from "@/components/ui/accordion";
 import paths from "@/configs/paths";
 import useAuth from "@/hooks/auth/useAuth";
 import useSearch from "@/hooks/search/useSearch";
@@ -78,18 +72,17 @@ export default function Navbar() {
   return (
     <Flex>
       <Box
-        width="300px"
+        width={isSearchActive ? "300px" : "0px"}
         height="100vh"
         bg="#02001F"
         color="white"
-        padding="4"
+        padding={isSearchActive ? "4" : "0"}
         position="fixed"
         top="0"
-        left="0"
+        left="250px"
         zIndex="1000"
-        transition="transform 0.5s ease-in-out, visibility 0.5s ease-in-out"
-        transform={isSearchActive ? "translateX(0)" : "translateX(-100%)"}
-        visibility={isVisible ? "visible" : "hidden"}
+        transition="width 0.5s ease-in-out, opacity 0.6s ease-in-out"
+        opacity={isSearchActive ? 1 : 0}
       >
         <Flex
           justifyContent="space-between"
@@ -211,11 +204,16 @@ export default function Navbar() {
             )}
           </Flex>
         </Stack>
-        <AccordionRoot collapsible defaultValue={[]}>
+        <Stack marginTop="10px">
           {items.map((item, index) => (
-            <AccordionItem key={index} value={item.value} paddingY="1">
-              <AccordionItemTrigger
+            <Box key={index} paddingY="1" marginTop="5px">
+              <Text
+                fontSize="lg"
+                cursor="pointer"
                 color="white"
+                _hover={{
+                  color: "#9000ff",
+                }}
                 onClick={(event) => {
                   if (item.onclick) {
                     item.onclick(event);
@@ -224,24 +222,17 @@ export default function Navbar() {
                   }
                 }}
               >
-                <Text
-                  fontSize="lg"
-                  cursor="pointer"
-                  _hover={{
-                    color: "#9000ff",
-                  }}
-                >
-                  {item.title}
-                </Text>
-              </AccordionItemTrigger>
-              <AccordionItemContent color="white">
-                {item.text?.map((linkItem, i) => (
+                {item.title}
+              </Text>
+              {item.value === "c" &&
+                item.text?.map((linkItem, i) => (
                   <Link
                     key={i}
                     href={linkItem.path}
                     color="white"
                     display="block"
                     paddingY="1"
+                    paddingLeft="20px"
                     cursor="pointer"
                     _hover={{
                       color: "#9000ff",
@@ -250,10 +241,9 @@ export default function Navbar() {
                     <Text fontSize="sm">{linkItem.label}</Text>
                   </Link>
                 ))}
-              </AccordionItemContent>
-            </AccordionItem>
+            </Box>
           ))}
-        </AccordionRoot>
+        </Stack>
       </Stack>
     </Flex>
   );
