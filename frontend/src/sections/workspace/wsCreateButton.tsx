@@ -18,7 +18,7 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
   const [errors, setErrors] = useState({
     workspaceName: "",
     originTitle: "",
-    originSinger: ""
+    originSinger: "",
   });
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,7 +39,7 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
       newErrors.originSinger = "원곡자를 입력해주세요.";
       hasError = true;
     }
-    
+
     if (hasError) {
       setErrors(newErrors);
       return;
@@ -48,7 +48,8 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
     try {
       const storedToken = localStorage.getItem("jwtToken");
       const response = await axios.post(
-        `${API_URL}/api/artists/${artistSeq}/workspaces`,
+        // `${API_URL}/api/artists/${artistSeq}/workspaces`,
+        `${API_URL}/api/workspaces`,
         {
           name: workspaceName,
           originSinger,
@@ -109,7 +110,10 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
               value={workspaceName}
               onChange={(e) => {
                 setWorkspaceName(e.target.value);
-                setErrors((prevErrors) => ({ ...prevErrors, workspaceName: "" }));
+                setErrors((prevErrors) => ({
+                  ...prevErrors,
+                  workspaceName: "",
+                }));
               }}
             />
             {errors.workspaceName && (
@@ -143,7 +147,10 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
               value={originSinger}
               onChange={(e) => {
                 setOriginSinger(e.target.value);
-                setErrors((prevErrors) => ({ ...prevErrors, originSinger: "" }));
+                setErrors((prevErrors) => ({
+                  ...prevErrors,
+                  originSinger: "",
+                }));
               }}
             />
             {errors.originSinger && (
