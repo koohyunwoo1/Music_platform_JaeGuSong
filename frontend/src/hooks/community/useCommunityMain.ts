@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { ArticleItem } from "@/configs/community/articleItem";
 
 const useCommunityMain = () => {
@@ -22,15 +23,20 @@ const useCommunityMain = () => {
     }
 
     // 게시물 목록 가져오기
-    const getArticleList = async () => {
+    const getArticleList = async (artistSeq: Number) => {
+        const storedToken = localStorage.getItem('jwtToken');
 
         try {
-            console.log('게시물 목록 가져올거임')
-        //   const response = await axios.get(`${API_URL}/api/boards/${userSeq}`),
-        //   headers: {
-        //     access: `${token}`
-        //   },
-        // setMyFeedArticleItems(response.data);
+            console.log('게시물 목록 가져올거임', artistSeq)
+            const response = await axios.get(`${API_URL}/api/boards/${artistSeq}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storedToken}`
+                },
+            })
+            // 배열에 넣어서 map으로 돌리기
+            console.log('안녕ㄴㄹㄴㅇ', response.data)
+        setMyFeedArticleItems(response.data);
         } catch(error) {
           console.error(error)
         }

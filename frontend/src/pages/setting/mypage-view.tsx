@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Text, Button, Input as ChakraInput, Textarea } from '@chakra-ui/react';
+import { Box, Text, Button, Input as ChakraInput, Textarea, Card, Image } from '@chakra-ui/react';
 import Modal from '@/components/common/Modal';
 import CommunityButton from '@/components/community/community-button';
 import UseCommunityCrew from '@/hooks/community/useCommunityCrew';
@@ -11,14 +11,16 @@ import { MakeCrewInputFields } from '@/configs/community/makeCrew';
 import MyInfo from '@/components/setting/myInfo';
 
 interface Crew {
-  id: number;
+  crewSeq: number;
+  nickname: string;
+  profileImage: string;
+
 }
 
 const MyPageView: React.FC = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const [ crewsInfo, setCrewsInfo ] = useState<Crew[]>([]);
-
   const [ myInfo, setMyInfo ] = useState<UserInfo | null>(null);
   const {
     openMakeCrewModal,
@@ -29,7 +31,10 @@ const MyPageView: React.FC = () => {
     setMakeCrewFormData,
   } = UseCommunityCrew();
 
-  const { getMyCrews } = useMyCrew();
+  const { 
+    crewData, 
+    getMyCrews, 
+  } = useMyCrew();
 
   const formData = new FormData();
 
@@ -65,13 +70,12 @@ const MyPageView: React.FC = () => {
       const storedToken = localStorage.getItem('jwtToken');
       if (storedToken) {
         try {
-          console.log('토큰토큰', storedToken)
           const response = await axios.get(`${API_URL}/api/user`, {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
           });
-          console.log('저장할거양ㅇㅇㅇ', response.data)
+          console.log('ㅇㄴㄴ영ㄴ아',response.data)
           setMyInfo(response.data)
           setCrewsInfo(response.data.crews);
         } catch (error) {
@@ -89,14 +93,52 @@ const MyPageView: React.FC = () => {
     if (crewsInfo) {
       getMyCrews(crewsInfo);
     }
-  }, [crewsInfo]);
+  }, [crewsInfo, getMyCrews]);
 
   return (
     <>
-      <Box display="flex" flexDirection="row" gap="10px">
+      <Box 
+        display="flex" 
+        flexDirection="row" 
+        gap="10px"
+        marginTop="15px"
+      >
         <Box>내 크루</Box>
         <CommunityButton title="크루 만들기" onClick={handleMakeCrewModal} />
       </Box>
+      { crewsInfo ? (
+        <Box 
+          display="flex" 
+          flexDirection="row" 
+          gap="20px"
+          marginTop="20px"
+          marginBottom="25px"
+        >
+          {crewData.map((crew) => (
+            <Card.Root 
+              width="195px" 
+              overflow="hidden"
+              background="#02001F"
+            >
+              <Image
+                src= {`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crew.profileImage}`}
+                alt= {crew.profileImage}
+                objectFit="cover"
+              />
+              <Card.Body 
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Card.Title color="white">{crew.nickname}</Card.Title>
+              </Card.Body>
+            </Card.Root>
+          ))}
+        </Box>
+        ) : (
+          <Text color="white">가입한 크루가 없습니다.</Text>
+        )
+      }
       <Box>내 정보 불러오기</Box>
       {openMakeCrewModal && (
         <Modal isOpen={openMakeCrewModal} onClose={handleMakeCrewModal}>
@@ -114,7 +156,6 @@ const MyPageView: React.FC = () => {
             </Text>
             <Box marginTop="50px">
               <form onSubmit={handleMakeCrew}>
-              {/* <form> */}
                 <Box display="flex" alignItems="center" mb="4">
                   <Text as="label" fontWeight="medium" width="150px">
                     크루명

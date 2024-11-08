@@ -48,6 +48,46 @@ const ArticleMusicList: React.FC = () => {
           isLiked: 'YET',
           thumbnail: '이미지를 그대로 내려보내줄거야??'
         },
+        { board_seq: 4,
+          user_seq: 2,
+          user_nickname: '수빈',
+          user_profile_image: '/profileImage.png',
+          title: '제목2',
+          state: 'PUBLIC',
+          likeNum: 3,
+          isLiked: 'YET',
+          thumbnail: '이미지를 그대로 내려보내줄거야??'
+        },
+        { board_seq: 4,
+          user_seq: 2,
+          user_nickname: '수빈',
+          user_profile_image: '/profileImage.png',
+          title: '제목2',
+          state: 'PUBLIC',
+          likeNum: 3,
+          isLiked: 'YET',
+          thumbnail: '이미지를 그대로 내려보내줄거야??'
+        },
+        { board_seq: 4,
+          user_seq: 2,
+          user_nickname: '수빈',
+          user_profile_image: '/profileImage.png',
+          title: '제목2',
+          state: 'PUBLIC',
+          likeNum: 3,
+          isLiked: 'YET',
+          thumbnail: '이미지를 그대로 내려보내줄거야??'
+        },
+        { board_seq: 4,
+          user_seq: 2,
+          user_nickname: '수빈',
+          user_profile_image: '/profileImage.png',
+          title: '제목2',
+          state: 'PUBLIC',
+          likeNum: 3,
+          isLiked: 'YET',
+          thumbnail: '이미지를 그대로 내려보내줄거야??'
+        },
       ]
   return (
     <Box                
