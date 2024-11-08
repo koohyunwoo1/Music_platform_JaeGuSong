@@ -14,7 +14,7 @@ import useHeaderStore from '@/stores/headerStore';
 
 const CommunityMainView: React.FC = () => {
   const { id } = useParams<{id: string}>();
-  
+
   const {
     feedState,
     changeHeader,

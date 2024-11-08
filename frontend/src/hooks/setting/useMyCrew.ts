@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 
-interface Crew {
+export interface Crew {
     crewSeq: number;
     nickname: string;
     profileImage: string;
