@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export interface Crew {
     crewSeq: number;
@@ -8,34 +8,37 @@ export interface Crew {
   }
 
 const useMyCrew = () => {
-    const [ crewData, setCrewData ] = useState<Crew[]>([]);
+  const [crewData, setCrewData] = useState<Crew[]>([]);
 
-    const getMyCrews = async (crewsInfo: Crew[]) => {
-        const API_URL = import.meta.env.VITE_API_URL;
-        const storedToken = localStorage.getItem('jwtToken');
-        const fetchedCrews: Crew[] = [];
-        for (const crewSeq of crewsInfo) {
-            try {
-                const response = await axios.get(
-                    `${API_URL}/api/crew/${crewSeq}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${storedToken}` 
-                        },
-                    }
-                )
-                fetchedCrews.push(response.data);
-            } catch(error) {
-                console.warn(error)
+  const getMyCrews = useCallback(async (crewsInfo: Crew[]) => {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const storedToken = localStorage.getItem("jwtToken");
+
+    try {
+      const fetchedCrews = await Promise.all(
+        crewsInfo.map(async (crew) => {
+          const response = await axios.get(
+            `${API_URL}/api/crew/${crew.crewSeq}`,
+            {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
             }
-        }
-        setCrewData(fetchedCrews);
-    };
+          );
+          return response.data;
+        })
+      );
 
-    return {
-        getMyCrews,
-        crewData
+      setCrewData(fetchedCrews);
+    } catch (error) {
+      console.warn("Error fetching crews:", error);
     }
+  }, []);
+
+  return {
+    getMyCrews,
+    crewData,
+  };
 };
 
 export default useMyCrew;
