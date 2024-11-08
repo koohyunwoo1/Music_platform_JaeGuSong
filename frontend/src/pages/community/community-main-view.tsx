@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Box, Text } from '@chakra-ui/react';
 import CommunityButton2 from '@/components/community/community-button-2';
 import ArticleList from '@/components/community/artice-list';
@@ -12,6 +13,7 @@ import { Outlet } from 'react-router-dom';
 import useHeaderStore from '@/stores/headerStore';
 
 const CommunityMainView: React.FC = () => {
+  const { id } = useParams<{id: string}>();
   
   const {
     feedState,

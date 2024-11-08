@@ -23,12 +23,12 @@ const useCommunityMain = () => {
     }
 
     // 게시물 목록 가져오기
-    const getArticleList = async (artistSeq: Number) => {
+    const getArticleList = async (authStorage: Number) => {
         const storedToken = localStorage.getItem('jwtToken');
 
         try {
-            console.log('게시물 목록 가져올거임', artistSeq)
-            const response = await axios.get(`${API_URL}/api/boards/${artistSeq}`,
+            console.log('게시물 목록 가져올거임', authStorage)
+            const response = await axios.get(`${API_URL}/api/boards/${authStorage}`,
             {
                 headers: {
                     Authorization: `Bearer ${storedToken}`
@@ -42,10 +42,6 @@ const useCommunityMain = () => {
         }
 
     }
-
-    // useEffect(() => {
-    //     getArticleList();
-    // }, []);
 
    
 

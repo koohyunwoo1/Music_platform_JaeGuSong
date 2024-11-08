@@ -1,11 +1,24 @@
 import React, { useEffect } from 'react';
-import { Separator, Stack } from '@chakra-ui/react';
+import { Separator, Stack, Box } from '@chakra-ui/react';
 import ArticleItems from './articleItems';
 import useAuthStore from "@/stores/authStore";
 import useCommunityMain from '@/hooks/community/useCommunityMain';
 
 const ArticleList: React.FC = () => {
-  const artistSeq = useAuthStore((state) => state.artistSeq);
+  const authStorage = localStorage.getItem("auth-storage");
+  let artistSeq: number | null = null;
+
+  // 예시
+  let boardSeq = 17;
+
+  if (authStorage) {
+    try {
+      const parsedData = JSON.parse(authStorage);
+      artistSeq = parsedData?.state?.artistSeq || null;
+    } catch (error) {
+      console.error("Failed to parse auth-storage:", error);
+    }
+  }''
 
   const {
     myFeedArticleItems,
@@ -13,19 +26,19 @@ const ArticleList: React.FC = () => {
   } = useCommunityMain();
 
   useEffect(() => {
-    getArticleList(artistSeq)
-  }, []);
+    if (artistSeq != null) {
+      getArticleList(artistSeq)
+    }
+  }, [artistSeq]);
 
   useEffect(() => {
-
   }, [myFeedArticleItems])
   
-
-
-  
   return (
-    <Stack 
-      marginTop="10px"
+    
+    <Box                
+        height="800px"
+        overflowY="auto"
     >
       {/* {myFeedArticleItems ? (
         myFeedArticleItems.map((myFeedArticleItem, index) => (
@@ -33,14 +46,14 @@ const ArticleList: React.FC = () => {
             key={index}  // 각 item에 고유한 key 지정
             size="xs" 
             borderColor="#c5e4f3"
-          >
-            <ArticleItems article={myFeedArticleItem} />
-          </Separator>
+          > */}
+            <ArticleItems boardSeq={boardSeq} />
+         {/* </Separator>
         ))
       ) : (
         <p>게시물이 없습니다.</p>  // 게시물이 없을 때 메시지 표시
-      )} */}
-    </Stack>
+      )}  */}
+    </Box>
   );
 };
 

@@ -3,7 +3,7 @@ import { Box, Stack, Separator, Text } from "@chakra-ui/react"
 
 const Reviewcontainer: React.FC = () => {
   return (
-    <Box>
+    <Box marginBottom="500px">
     <Stack>
       <Separator size="xs" marginTop="20px" />
       <Text>댓글</Text>
