@@ -12,10 +12,10 @@ const Container: React.FC<ContainerProps> = ({ children }) => {
       position="fixed"
       border="2px solid #9000FF"
       borderRadius="8px"
-      width="calc(100% - 280px)"
+      width="calc(100% - 270px)"
       minHeight="100vh"
       height="100px"
-      marginTop="130px"
+      marginTop="150px"
       marginRight="20px"
       overflowY="auto"
       css={{

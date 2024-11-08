@@ -161,7 +161,7 @@ const CommunityDetailView: React.FC = () => {
             <Text textStyle="2xl" margin=" 15px 0">{title}</Text>
             <Separator />
             {/* 사진 여러 개 있으면 반복문으로 받기 */}
-            <Box>
+            <Box margin="10px 25px">
               <img 
                   width="400px"
                   height="400px"   
@@ -171,16 +171,18 @@ const CommunityDetailView: React.FC = () => {
               <Text textStyle="1xl">{content}</Text>
             </Box>              
           </Box>  
-          {comments}
-          {comments.length} 
-          <Box display="flex" gap="2" marginTop="20px">
-            <CommunityButton title="워크스페이스 가기" onClick={goworkSpace} />
+
+          <Box display="flex" gap="3" marginTop="20px" marginLeft="10px">
+            <CommunityButton 
+              title="워크스페이스 가기" 
+              onClick={goworkSpace} 
+            />
             <CommunityButton
               title={`좋아요 ${myLikedNum.toString()}`}
               onClick={changeMyLiked}
             />
           </Box>
-          <Reviewcontainer />
+          <Reviewcontainer comments={comments} commentsLength={comments.length} />
           {openDeleteModal && (
             <Modal
               isOpen={openDeleteModal}
