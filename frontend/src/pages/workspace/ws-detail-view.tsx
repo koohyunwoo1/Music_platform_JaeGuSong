@@ -44,7 +44,7 @@ export default function WsDetailView() {
 
   return (
     <Stack padding={4} color="white" borderRadius="md">
-      <WsHeader wsDetails={wsDetails} />
+      <WsHeader wsDetails={wsDetails} workspaceSeq={workspaceSeq} />
 
       <SessionBox sessions={wsDetails.sounds || []} />
 
