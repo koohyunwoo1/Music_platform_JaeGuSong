@@ -1,94 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Flex } from "@chakra-ui/react"
+import axios from 'axios';
 import useCommunityMusic from '@/hooks/community/useCommunityMusic';
+import useAuthStore from "@/stores/authStore";
 
 const ArticleMusicList: React.FC = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const {
-        goMusicFeedDetail
+      goMusicFeedDetail
     } = useCommunityMusic();
+    
+    useEffect(() => {
+      const getMusicFeedList = async () => {
+        const authStorage = localStorage.getItem("auth-storage");
+        const storedToken = localStorage.getItem('jwtToken');
+        let artistSeq: number | null = null;
 
-    const musicArticles = [
-        { board_seq: 1,
-          user_seq: 1,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목1',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 2,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 3,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 4,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 4,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 4,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 4,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-        { board_seq: 4,
-          user_seq: 2,
-          user_nickname: '수빈',
-          user_profile_image: '/profileImage.png',
-          title: '제목2',
-          state: 'PUBLIC',
-          likeNum: 3,
-          isLiked: 'YET',
-          thumbnail: '이미지를 그대로 내려보내줄거야??'
-        },
-      ]
+        if (authStorage) {
+          try {
+            const parsedData = JSON.parse(authStorage);
+            artistSeq = parsedData?.state?.artistSeq || null;
+          } catch (error) {
+            console.error("Failed to parse auth-storage:", error);
+          }
+        }
+        try {
+          const response = await axios.get(
+            `${API_URL}/api/workspaces/artists/${artistSeq}`,
+            {
+              headers: {
+                Authorization: `Bearer ${storedToken}`
+              },
+            }
+          )
+          console.log('dsfsfsafsa', response.data)
+        } catch(error) {
+          console.warn(error);
+        }
+      }
+    }, []);
   return (
     <Box                
         height="800px"
@@ -113,7 +63,7 @@ const ArticleMusicList: React.FC = () => {
     gap="30px"
 
 >
-    {musicArticles.map((article) => (
+    {/* {musicArticles.map((article) => (
         <Button
             key={article.board_seq}
             size="xs"
@@ -126,7 +76,7 @@ const ArticleMusicList: React.FC = () => {
         >
             {article.title}
         </Button>
-    ))}
+    ))} */}
 </Flex>
 </Box>
   );
