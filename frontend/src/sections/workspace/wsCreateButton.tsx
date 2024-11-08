@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { Button, Input, Stack } from "@chakra-ui/react";
+import { Button, Input, Stack, Text } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import {
   PopoverArrow,
@@ -12,13 +12,39 @@ import {
 } from "@/components/ui/popover";
 
 export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
-  // export default function WsCreateButton({ artistSeq }) {
   const [workspaceName, setWorkspaceName] = useState("");
   const [originTitle, setOriginTitle] = useState("");
   const [originSinger, setOriginSinger] = useState("");
+  const [errors, setErrors] = useState({
+    workspaceName: "",
+    originTitle: "",
+    originSinger: ""
+  });
   const API_URL = import.meta.env.VITE_API_URL;
 
   const handleCreateWorkspace = async () => {
+    // 필드별 유효성 검사
+    let hasError = false;
+    const newErrors = { workspaceName: "", originTitle: "", originSinger: "" };
+
+    if (!workspaceName.trim()) {
+      newErrors.workspaceName = "워크스페이스 이름을 입력해주세요.";
+      hasError = true;
+    }
+    if (!originTitle.trim()) {
+      newErrors.originTitle = "원곡명을 입력해주세요.";
+      hasError = true;
+    }
+    if (!originSinger.trim()) {
+      newErrors.originSinger = "원곡자를 입력해주세요.";
+      hasError = true;
+    }
+    
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const storedToken = localStorage.getItem("jwtToken");
       const response = await axios.post(
@@ -41,7 +67,6 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
         type: "success",
       });
 
-      // 생성 성공 시 부모 컴포넌트로 workspaceId 전달
       onWorkspaceCreated(response.data);
     } catch (error) {
       console.error("Error creating workspace:", error);
@@ -82,24 +107,50 @@ export default function WsCreateButton({ artistSeq, onWorkspaceCreated }) {
               fontFamily="MiceGothic"
               fontSize={11}
               value={workspaceName}
-              onChange={(e) => setWorkspaceName(e.target.value)}
+              onChange={(e) => {
+                setWorkspaceName(e.target.value);
+                setErrors((prevErrors) => ({ ...prevErrors, workspaceName: "" }));
+              }}
             />
+            {errors.workspaceName && (
+              <Text color="red.500" fontSize="xs">
+                {errors.workspaceName}
+              </Text>
+            )}
+
             <Input
               placeholder="작업할 곡의 원곡명을 입력해주세요."
               size="sm"
               fontFamily="MiceGothic"
               fontSize={11}
               value={originTitle}
-              onChange={(e) => setOriginTitle(e.target.value)}
+              onChange={(e) => {
+                setOriginTitle(e.target.value);
+                setErrors((prevErrors) => ({ ...prevErrors, originTitle: "" }));
+              }}
             />
+            {errors.originTitle && (
+              <Text color="red.500" fontSize="xs">
+                {errors.originTitle}
+              </Text>
+            )}
+
             <Input
               placeholder="작업할 곡의 원곡자를 입력해주세요."
               size="sm"
               fontFamily="MiceGothic"
               fontSize={11}
               value={originSinger}
-              onChange={(e) => setOriginSinger(e.target.value)}
+              onChange={(e) => {
+                setOriginSinger(e.target.value);
+                setErrors((prevErrors) => ({ ...prevErrors, originSinger: "" }));
+              }}
             />
+            {errors.originSinger && (
+              <Text color="red.500" fontSize="xs">
+                {errors.originSinger}
+              </Text>
+            )}
           </Stack>
           <Button
             size="sm"

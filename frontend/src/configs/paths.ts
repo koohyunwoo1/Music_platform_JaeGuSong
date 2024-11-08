@@ -4,7 +4,7 @@ const PATH = {
   divider: "/divider",
   workspace: "/ws",
   game: "/game",
-  setting: "/setting"
+  setting: "/setting",
 };
 
 const paths = {
@@ -26,7 +26,7 @@ const paths = {
   // workspace
   workspace: {
     list: `${PATH.workspace}/list`,
-    detail: (workspaceId: number) => `${PATH.workspace}/list/${workspaceId}`, // 워크스페이스 상세 페이지
+    detail: (workspaceSeq: number) => `${PATH.workspace}/list/${workspaceSeq}`,
   },
 
   // community
@@ -47,8 +47,8 @@ const paths = {
   },
   // setting
   setting: {
-    mypage: `${PATH.setting}/mypage`
-  }
+    mypage: `${PATH.setting}/mypage`,
+  },
 
   // PATH 는 크게 기능 기준으로 나누고,
   // paths 로 세부 페이지 경로 설정해뒀습니다.

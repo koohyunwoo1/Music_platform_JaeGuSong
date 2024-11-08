@@ -29,7 +29,7 @@ const titleRoute: RouteObject[] = [
         element: <WsListView />, // 나중에 추가 가능
       },
       {
-        path: `${paths.workspace.list}/:workspaceId`, // 워크스페이스 상세 페이지 라우트
+        path: `${paths.workspace.list}/:workspaceSeq`, // 워크스페이스 상세 페이지 라우트
         element: <WsDetailView />, // 상세 페이지 컴포넌트 렌더링
       },
     ],

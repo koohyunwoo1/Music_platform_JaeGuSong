@@ -9,16 +9,26 @@ import { useWsDetailStore } from "@/stores/wsDetailStore";
 
 interface SessionProps {
   sessionId: string;
+  url: string;
+  type: string;
+  startPoint: number;
+  endPoint: number;
 }
 
-export default function Session({ sessionId }: SessionProps) {
+export default function Session({
+  sessionId,
+  url,
+  type,
+  startPoint,
+  endPoint,
+}: SessionProps) {
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0); // 현재 재생 중인 시간
-  const [cursor1, setCursor1] = useState(0); // 시작 커서 위치
-  const [cursor2, setCursor2] = useState(0); // 종료 커서 위치
+  const [currentTime, setCurrentTime] = useState(0);
+  const [cursor1, setCursor1] = useState(startPoint); // 시작 커서 위치
+  const [cursor2, setCursor2] = useState(endPoint); // 종료 커서 위치
   const addSession = useWsDetailStore((state) => state.addSession);
   const removeSession = useWsDetailStore((state) => state.removeSession);
   const toggleSession = useWsDetailStore((state) => state.toggleSession);
@@ -38,27 +48,24 @@ export default function Session({ sessionId }: SessionProps) {
       height: 100,
     });
 
-    wavesurferRef.current.load("/DAY6 - Welcome to the Show.mp3");
+    wavesurferRef.current.load(url);
 
     wavesurferRef.current.on("ready", () => {
       const audioDuration = wavesurferRef.current?.getDuration() || 0;
       setDuration(audioDuration);
-      setCursor2(audioDuration); // 종료 커서를 오디오 길이로 설정
+      setCursor2(endPoint || audioDuration); // 종료 커서를 오디오 길이로 설정
     });
 
-    // 재생 중일 때 시간 업데이트
     wavesurferRef.current.on("audioprocess", () => {
       const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
       setCurrentTime(currentTime);
     });
 
-    // 정지 상태에서 seek 이벤트로 재생 위치 변경 시 시간 업데이트
     wavesurferRef.current.on("seek", () => {
       const newTime = wavesurferRef.current?.getCurrentTime() || 0;
-      setCurrentTime(newTime); // 변경된 재생 위치를 현재 시간으로 설정
+      setCurrentTime(newTime);
     });
 
-    // 파형 클릭 시 위치 반영
     const updateCurrentTimeOnClick = () => {
       const newTime = wavesurferRef.current?.getCurrentTime() || 0;
       setCurrentTime(newTime);
@@ -75,7 +82,7 @@ export default function Session({ sessionId }: SessionProps) {
         updateCurrentTimeOnClick
       );
     };
-  }, [sessionId, addSession, removeSession]);
+  }, [sessionId, addSession, removeSession, url, startPoint, endPoint]);
 
   const handlePlayPause = () => {
     if (wavesurferRef.current) {
@@ -92,11 +99,10 @@ export default function Session({ sessionId }: SessionProps) {
     if (wavesurferRef.current) {
       wavesurferRef.current.stop();
       setIsPlaying(false);
-      setCurrentTime(0); // 정지 시 현재 시간 초기화
+      setCurrentTime(0);
     }
   };
 
-  // 시간 형식 함수
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -110,10 +116,7 @@ export default function Session({ sessionId }: SessionProps) {
         <Stack justifyContent="center">
           <ToggleOptions />
           <Text fontFamily="MiceGothic" fontSize={11}>
-            원곡 : APT.
-          </Text>
-          <Text fontFamily="MiceGothic" fontSize={11}>
-            아티스트 : 로제
+            세션 타입 : {type}
           </Text>
         </Stack>
 
@@ -125,25 +128,19 @@ export default function Session({ sessionId }: SessionProps) {
             position="relative"
           >
             <CursorMarker
-              position={cursor1} // 시작 커서 위치
+              position={cursor1}
               color="green"
               duration={duration}
             />
-            <CursorMarker
-              position={cursor2} // 종료 커서 위치
-              color="red"
-              duration={duration}
-            />
+            <CursorMarker position={cursor2} color="red" duration={duration} />
           </Box>
 
-          {/* 재생 시간 표시 */}
           <Flex justifyContent="space-between">
-            <Text fontSize={10}>{formatTime(currentTime)}</Text>{" "}
-            <Text fontSize={10}>{formatTime(duration)}</Text>{" "}
+            <Text fontSize={10}>{formatTime(currentTime)}</Text>
+            <Text fontSize={10}>{formatTime(duration)}</Text>
           </Flex>
         </Box>
 
-        {/* Play 컴포넌트를 개별 세션용으로 사용 */}
         <Play
           isPlaying={isPlaying}
           onPlayPause={handlePlayPause}
