@@ -1,5 +1,7 @@
 import { Text, Stack, Flex } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import axios from "axios";
 
 interface WsHeaderProps {
   wsDetails: {
@@ -7,10 +9,34 @@ interface WsHeaderProps {
     originTitle: string;
     originSinger: string;
     state: string;
-  }[]; // 필요에 따라 각 워크스페이스의 데이터 필드를 수정
+  };
+  workspaceSeq: number; // workspaceSeq를 props로 추가
 }
 
-export default function WsHeader({ wsDetails }: WsHeaderProps) {
+export default function WsHeader({ wsDetails, workspaceSeq }: WsHeaderProps) {
+  const [isPublic, setIsPublic] = useState(wsDetails.state === "PUBLIC");
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const toggleState = async () => {
+    const newState = isPublic ? "PRIVATE" : "PUBLIC";
+    try {
+      await axios.post(
+        `${API_URL}/api/workspaces/${workspaceSeq}/state`,
+        { state: newState },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
+      setIsPublic(!isPublic); // 상태 토글
+    } catch (error) {
+      console.error("Error updating workspace state:", error);
+      alert("상태 업데이트에 실패했습니다.");
+    }
+  };
+
   return (
     <Stack>
       <Flex justifyContent="space-between">
@@ -27,7 +53,7 @@ export default function WsHeader({ wsDetails }: WsHeaderProps) {
         </Stack>
         <Flex>
           <Button>저장</Button>
-          <Button>공유</Button>
+          <Button onClick={toggleState}>{isPublic ? "비공개" : "공유"}</Button>
         </Flex>
       </Flex>
     </Stack>
