@@ -78,41 +78,56 @@ export default function Navbar() {
     <Flex>
       <Stack padding="0" fontFamily="MiceGothicBold" flex="1">
         <Box width="100%" margin="0" paddingY="4">
-          <Link href={paths.main}>
+          <Link href={paths.community.main}>
             <Image src="/common/Logo.png" alt="Logo.png" />
           </Link>
         </Box>
         <Stack>
           <Flex gap="2">
             {isLoggedIn ? (
-              <Box display="flex" flexDirection="column" gap="5px">
+              <Box
+                display="flex"
+                flexDirection="row"
+                gap="10px"
+                justifyContent="center"
+              >
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="60px"
+                  _hover={{
+                    color: "#9000ff",
+                    border: "solid 2px white",
+                  }}
+                >
+                  팔로우
+                </Button>
+                <Button
+                  border="solid 2px #9000FF"
+                  borderRadius="15px"
+                  height="30px"
+                  width="60px"
+                  _hover={{
+                    color: "#9000ff",
+                    border: "solid 2px white",
+                  }}
+                >
+                  팔로잉
+                </Button>
                 <Button
                   border="solid 2px #9000FF"
                   borderRadius="15px"
                   height="30px"
                   width="80px"
                   onClick={handleLogout}
+                  _hover={{
+                    color: "#9000ff",
+                    border: "solid 2px white",
+                  }}
                 >
                   로그아웃
                 </Button>
-                <Box display="flex" flexDirection="row" gap="5px">
-                  <Button
-                    border="solid 2px #9000FF"
-                    borderRadius="15px"
-                    height="30px"
-                    width="80px"
-                  >
-                    팔로우
-                  </Button>
-                  <Button
-                    border="solid 2px #9000FF"
-                    borderRadius="15px"
-                    height="30px"
-                    width="80px"
-                  >
-                    팔로잉
-                  </Button>
-                </Box>
               </Box>
             ) : (
               <>
@@ -121,6 +136,10 @@ export default function Navbar() {
                   borderRadius="15px"
                   height="30px"
                   width="80px"
+                  _hover={{
+                    color: "#9000ff",
+                    border: "solid 2px white",
+                  }}
                   onClick={goSignInPage}
                 >
                   로그인
@@ -130,6 +149,10 @@ export default function Navbar() {
                   borderRadius="15px"
                   height="30px"
                   width="80px"
+                  _hover={{
+                    color: "#9000ff",
+                    border: "solid 2px white",
+                  }}
                   onClick={goSignupPage}
                 >
                   회원가입
@@ -142,7 +165,15 @@ export default function Navbar() {
           {items.map((item, index) => (
             <AccordionItem key={index} value={item.value} paddingY="1">
               <AccordionItemTrigger color="white">
-                <Text fontSize="lg">{item.title}</Text>
+                <Text
+                  fontSize="lg"
+                  cursor="pointer"
+                  _hover={{
+                    color: "#9000ff",
+                  }}
+                >
+                  {item.title}
+                </Text>
               </AccordionItemTrigger>
               <AccordionItemContent color="white">
                 {item.text.map((linkItem, i) => (
@@ -152,7 +183,11 @@ export default function Navbar() {
                     color="white"
                     display="block"
                     paddingY="1"
+                    cursor="pointer"
                     onClick={linkItem.onclick}
+                    _hover={{
+                      color: "#9000ff",
+                    }}
                   >
                     <Text fontSize="sm">{linkItem.label}</Text>
                   </Link>

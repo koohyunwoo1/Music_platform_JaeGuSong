@@ -143,9 +143,11 @@ const Input: React.FC = () => {
                 onBlur={handleBlur}
                 placeholder="비밀번호 입력"
                 style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
+                  color: "white",
+                  background: "#02001F",
+                  border: "1px solid",
+                  borderRadius: "5px",
+                  borderColor: "white",
                   marginTop: "20px",
                 }}
               />
@@ -159,9 +161,11 @@ const Input: React.FC = () => {
                 onChange={handleChange}
                 placeholder="비밀번호 확인"
                 style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
+                  color: "white",
+                  background: "#02001F",
+                  border: "1px solid",
+                  borderRadius: "5px",
+                  borderColor: "white",
                   marginTop: "20px",
                 }}
               />
@@ -200,9 +204,11 @@ const Input: React.FC = () => {
                     : ""
                 }
                 style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
+                  color: "white",
+                  background: "#02001F",
+                  border: "1px solid",
+                  borderRadius: "5px",
+                  borderColor: "white",
                   padding: "0.5rem",
                   marginLeft: "10px",
                 }}
@@ -210,7 +216,7 @@ const Input: React.FC = () => {
                 <option>선택</option>
                 {SignupInputFields[currentStep + 2].options?.map(
                   (option, idx) => (
-                    <option key={idx} value={option} style={{ color: "black" }}>
+                    <option key={idx} value={option} style={{ color: "white" }}>
                       {option}
                     </option>
                   )
@@ -226,9 +232,11 @@ const Input: React.FC = () => {
                   }
                 }}
                 style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
+                  color: "white",
+                  background: "#02001F",
+                  border: "1px solid",
+                  borderRadius: "5px",
+                  borderColor: "white",
                   padding: "0.5rem",
                   marginLeft: "10px",
                 }}
@@ -256,9 +264,11 @@ const Input: React.FC = () => {
                     : undefined
                 }
                 style={{
-                  color: "black",
-                  background: "white",
-                  borderColor: "black",
+                  color: "white",
+                  background: "#02001F",
+                  border: "1px solid",
+                  borderRadius: "5px",
+                  borderColor: "white",
                   padding: "0.5rem",
                   marginTop: "20px",
                 }}

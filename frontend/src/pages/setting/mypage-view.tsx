@@ -1,27 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Box, Text, Button, Input as ChakraInput, Textarea, Card, Image } from '@chakra-ui/react';
-import Modal from '@/components/common/Modal';
-import CommunityButton from '@/components/community/community-button';
-import UseCommunityCrew from '@/hooks/community/useCommunityCrew';
-import useMyCrew from '@/hooks/setting/useMyCrew';
-import useMyInfo from '@/hooks/setting/useMyInfo';
-import { UserInfo } from '@/hooks/setting/useMyInfo';
-import { MakeCrewInputFields } from '@/configs/community/makeCrew';
-import MyInfo from '@/components/setting/myInfo';
-
-interface Crew {
-  crewSeq: number;
-  nickname: string;
-  profileImage: string;
-
-}
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Box,
+  Text,
+  Button,
+  Input as ChakraInput,
+  Textarea,
+  Card,
+  Image,
+  Flex,
+} from "@chakra-ui/react";
+import Modal from "@/components/common/Modal";
+import CommunityButton from "@/components/community/community-button";
+import UseCommunityCrew from "@/hooks/community/useCommunityCrew";
+import useMyCrew from "@/hooks/setting/useMyCrew";
+import useMyInfo from "@/hooks/setting/useMyInfo";
+import { UserInfo } from "@/hooks/setting/useMyInfo";
+import { MakeCrewInputFields } from "@/configs/community/makeCrew";
+import MyInfo from "@/components/setting/myInfo";
 
 const MyPageView: React.FC = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const [ crewsInfo, setCrewsInfo ] = useState<Crew[]>([]);
-  const [ myInfo, setMyInfo ] = useState<UserInfo | null>(null);
+  const [crewsInfo, setCrewsInfo] = useState([]);
+  const [myInfo, setMyInfo] = useState<UserInfo | null>(null);
   const {
     openMakeCrewModal,
     makeCrewFormData,
@@ -31,10 +33,7 @@ const MyPageView: React.FC = () => {
     setMakeCrewFormData,
   } = UseCommunityCrew();
 
-  const { 
-    crewData, 
-    getMyCrews, 
-  } = useMyCrew();
+  const { crewData, getMyCrews } = useMyCrew();
 
   const formData = new FormData();
 
@@ -59,7 +58,7 @@ const MyPageView: React.FC = () => {
     e.preventDefault();
     // 파일이 선택된 경우 FormData에 추가
     if (file) {
-      formData.append('profileImage', file);
+      formData.append("profileImage", file);
     }
 
     makeCrew(makeCrewFormData); // makeCrew 함수에 FormData 전달
@@ -67,7 +66,7 @@ const MyPageView: React.FC = () => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const storedToken = localStorage.getItem('jwtToken');
+      const storedToken = localStorage.getItem("jwtToken");
       if (storedToken) {
         try {
           const response = await axios.get(`${API_URL}/api/user`, {
@@ -75,14 +74,13 @@ const MyPageView: React.FC = () => {
               Authorization: `Bearer ${storedToken}`,
             },
           });
-          console.log('ㅇㄴㄴ영ㄴ아',response.data)
-          setMyInfo(response.data)
+          setMyInfo(response.data);
           setCrewsInfo(response.data.crews);
         } catch (error) {
-          console.warn('Error during API request:', error);
+          console.warn("Error during API request:", error);
         }
       } else {
-        console.warn('No stored token found');
+        console.warn("No stored token found");
       }
     };
 
@@ -96,148 +94,168 @@ const MyPageView: React.FC = () => {
   }, [crewsInfo, getMyCrews]);
 
   return (
-    <>
-      <Box 
-        display="flex" 
-        flexDirection="row" 
-        gap="10px"
-        marginTop="15px"
-      >
-        <Box>내 크루</Box>
-        <CommunityButton title="크루 만들기" onClick={handleMakeCrewModal} />
-      </Box>
-      { crewsInfo ? (
-        <Box 
-          display="flex" 
-          flexDirection="row" 
-          gap="20px"
-          marginTop="20px"
-          marginBottom="25px"
-        >
-          {crewData.map((crew) => (
-            <Card.Root 
-              width="195px" 
-              overflow="hidden"
-              background="#02001F"
-            >
-              <Image
-                src= {`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crew.profileImage}`}
-                alt= {crew.profileImage}
-                objectFit="cover"
-              />
-              <Card.Body 
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Card.Title color="white">{crew.nickname}</Card.Title>
-              </Card.Body>
-            </Card.Root>
-          ))}
+    <Flex
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      padding="20px"
+    >
+      <Box width="100%" maxWidth="800px" color="white">
+        <Box display="flex" flexDirection="row" gap="10px" marginBottom="20px">
+          <Text fontSize="xl" fontWeight="bold">
+            내 크루
+          </Text>
+          <CommunityButton title="크루 만들기" onClick={handleMakeCrewModal} />
         </Box>
+        {crewsInfo && crewsInfo.length > 0 ? (
+          <Flex flexDirection="row" flexWrap="wrap" gap="20px">
+            {crewData.map((crew) => (
+              <Card.Root
+                key={crew.crewSeq}
+                width="180px"
+                overflow="hidden"
+                background="#2d3748"
+                borderRadius="md"
+                boxShadow="lg"
+              >
+                <Image
+                  src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crew.profileImage}`}
+                  alt={crew.profileImage}
+                  objectFit="cover"
+                  height="120px"
+                  width="100%"
+                />
+                <Card.Body
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  padding="10px"
+                >
+                  <Card.Title color="white" fontSize="md" fontWeight="bold">
+                    {crew.nickname}
+                  </Card.Title>
+                </Card.Body>
+              </Card.Root>
+            ))}
+          </Flex>
         ) : (
-          <Text color="white">가입한 크루가 없습니다.</Text>
-        )
-      }
-      <Box>내 정보 불러오기</Box>
-      {openMakeCrewModal && (
-        <Modal isOpen={openMakeCrewModal} onClose={handleMakeCrewModal}>
-          <Box
-            width="500px"
-            height="550px"
-            marginTop="60px"
-            padding="20px"
-            borderRadius="md"
-            bg="white"
-            color="black"
-          >
-            <Text textStyle="xl" color="black">
-              크루 생성
-            </Text>
-            <Box marginTop="50px">
-              <form onSubmit={handleMakeCrew}>
-                <Box display="flex" alignItems="center" mb="4">
-                  <Text as="label" fontWeight="medium" width="150px">
-                    크루명
-                  </Text>
-                  <ChakraInput
-                    type="text"
-                    name="nickname"
-                    value={makeCrewFormData.nickname}
-                    onChange={handleChange}
-                    placeholder="크루 이름을 입력하세요"
-                  />
-                </Box>
-                <Box display="flex" alignItems="center" mb="4">
-                  <Text as="label" fontWeight="medium" width="150px">
-                    (선택)크루 설명
-                  </Text>
-                  <Textarea
-                    name="content"
-                    value={makeCrewFormData.content}
-                    onChange={handleChange}
-                    placeholder="크루 설명을 입력하세요"
-                    height="200px"
-                  />
-                </Box>
-                <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
+          <Text color="white" textAlign="center">
+            가입한 크루가 없습니다.
+          </Text>
+        )}
+        <Text fontSize="xl" fontWeight="bold" marginTop="50px">
+          내 정보
+        </Text>
+        {openMakeCrewModal && (
+          <Modal isOpen={openMakeCrewModal} onClose={handleMakeCrewModal}>
+            <Box
+              width="500px"
+              height="550px"
+              marginTop="60px"
+              padding="20px"
+              borderRadius="md"
+              bg="white"
+              color="black"
+            >
+              <Text fontSize="2xl" fontWeight="bold" color="black">
+                크루 생성
+              </Text>
+              <Box marginTop="50px">
+                <form onSubmit={handleMakeCrew}>
                   <Box display="flex" alignItems="center" mb="4">
-                    <Text as="label" fontWeight="medium" width="100px">
-                      지역
+                    <Text as="label" fontWeight="medium" width="150px">
+                      크루명
                     </Text>
-                    <select
-                      name="region"
+                    <ChakraInput
+                      type="text"
+                      name="nickname"
+                      value={makeCrewFormData.nickname}
                       onChange={handleChange}
-                      value={makeCrewFormData.region}
-                    >
-                      <option>선택</option>
-                      {MakeCrewInputFields[2].options?.map((option, idx) => (
-                        <option key={idx} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="크루 이름을 입력하세요"
+                    />
                   </Box>
                   <Box display="flex" alignItems="center" mb="4">
-                    <Text as="label" fontWeight="medium" width="100px">
-                      장르
+                    <Text as="label" fontWeight="medium" width="150px">
+                      (선택)크루 설명
                     </Text>
-                    <select
-                      name="genre"
+                    <Textarea
+                      name="content"
+                      value={makeCrewFormData.content}
                       onChange={handleChange}
-                      value={makeCrewFormData.genre}
-                    >
-                      <option>선택</option>
-                      {MakeCrewInputFields[3].options?.map((option, idx) => (
-                        <option key={idx} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="크루 설명을 입력하세요"
+                      height="200px"
+                    />
                   </Box>
-                </Box>
-                <Box display="flex" alignItems="center" mb="4">
-                  <Text as="label" fontWeight="medium" width="150px">
-                    프로필 이미지
-                  </Text>
-                  <input
-                    type="file"
-                    name="profileImage"
-                    onChange={handleFileChange}
-                    style={{ color: 'black' }}
-                  />
-                </Box>
-                <Box display="flex" justifyContent="center" alignContent="center" gap="10px" marginTop="50px">
-                  <Button type="submit">생성</Button>
-                  <Button onClick={handleMakeCrewModal}>취소</Button>
-                </Box>
-              </form>
+                  <Box
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Box display="flex" alignItems="center" mb="4">
+                      <Text as="label" fontWeight="medium" width="100px">
+                        지역
+                      </Text>
+                      <select
+                        name="region"
+                        onChange={handleChange}
+                        value={makeCrewFormData.region}
+                      >
+                        <option>선택</option>
+                        {MakeCrewInputFields[2].options?.map((option, idx) => (
+                          <option key={idx} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </Box>
+                    <Box display="flex" alignItems="center" mb="4">
+                      <Text as="label" fontWeight="medium" width="100px">
+                        장르
+                      </Text>
+                      <select
+                        name="genre"
+                        onChange={handleChange}
+                        value={makeCrewFormData.genre}
+                      >
+                        <option>선택</option>
+                        {MakeCrewInputFields[3].options?.map((option, idx) => (
+                          <option key={idx} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" mb="4">
+                    <Text as="label" fontWeight="medium" width="150px">
+                      프로필 이미지
+                    </Text>
+                    <input
+                      type="file"
+                      name="profileImage"
+                      onChange={handleFileChange}
+                      style={{ color: "black" }}
+                    />
+                  </Box>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignContent="center"
+                    gap="10px"
+                    marginTop="50px"
+                  >
+                    <Button type="submit">생성</Button>
+                    <Button onClick={handleMakeCrewModal}>취소</Button>
+                  </Box>
+                </form>
+              </Box>
             </Box>
-          </Box>
-        </Modal>
-      )}
-      <MyInfo  myInfo={myInfo}/>
-    </>
+          </Modal>
+        )}
+        <MyInfo myInfo={myInfo} />
+      </Box>
+    </Flex>
   );
 };
 
