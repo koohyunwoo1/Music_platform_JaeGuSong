@@ -1,18 +1,26 @@
 import Session from "@/components/workspace/session";
 import { Stack } from "@chakra-ui/react";
-import { v4 as uuidv4 } from "uuid";
 
-export default function SessionBox() {
-  const sessions = [
-    { id: uuidv4(), title: "Session 1" },
-    { id: uuidv4(), title: "Session 2" },
-    { id: uuidv4(), title: "Session 3" },
-  ];
+interface SessionBoxProps {
+  sessions: {
+    soundSeq: number;
+    startPoint: number;
+    endPoint: number;
+    type: string;
+    url: string;
+  }[];
+}
 
+export default function SessionBox({ sessions }: SessionBoxProps) {
   return (
     <Stack>
       {sessions.map((session) => (
-        <Session key={session.id} sessionId={session.id} />
+        <Session
+          key={session.soundSeq}
+          sessionId={session.soundSeq.toString()}
+          url={session.url}
+          type={session.type} // title이나 다른 정보를 필요하면 추가
+        />
       ))}
     </Stack>
   );

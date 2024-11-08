@@ -1,7 +1,6 @@
-import { Stack, Flex } from "@chakra-ui/react";
+import { Box, Stack, Flex } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Filter from "@/sections/workspace/filter";
 import Search from "@/sections/workspace/search";
 import CardList from "@/sections/workspace/cardList";
 import WsCreateButton from "@/sections/workspace/wsCreateButton";
@@ -63,13 +62,10 @@ export default function WsListView() {
   }, [artistSeq]);
 
   return (
-    <Flex direction="column" flex="1">
+    <Flex direction="column" height="100%" paddingTop="3" px="5" gap="2">
       <Stack>
-        <Flex justify="space-between" align="center">
-          <Flex gap={2}>
-            <Filter />
-            <Search />
-          </Flex>
+        <Flex justify="space-between">
+          <Search />
 
           {/* artistSeq와 생성된 워크스페이스 ID 콜백을 전달 */}
           {artistSeq && (
@@ -79,16 +75,16 @@ export default function WsListView() {
             />
           )}
         </Flex>
-
-        <Flex flex="1" direction="column" overflowY="auto">
-          {/* wsList 데이터를 CardList에 props로 전달 */}
-          <CardList wsList={wsList} />
-        </Flex>
-
-        <Flex justify="center">
-          <WsPagination />
-        </Flex>
       </Stack>
+
+      <Box flex="1" overflowY="auto">
+        {/* wsList 데이터를 CardList에 props로 전달 */}
+        <CardList wsList={wsList} />
+      </Box>
+
+      <Flex justify="center" position="sticky" bottom="0" p={4}>
+        <WsPagination />
+      </Flex>
     </Flex>
   );
 }
