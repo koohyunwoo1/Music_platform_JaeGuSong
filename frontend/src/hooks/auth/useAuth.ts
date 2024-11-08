@@ -12,17 +12,17 @@ const useAuth = () => {
 
     const goSignupPage = () => {
         navigate(paths.auth.signUp)
-    }
+    };
 
     const goSignInPage = () => {
         navigate(paths.auth.signIn)
-    }
+    };
     
     const goLogout = () => {
         setSignined(false)
         localStorage.removeItem('jwtToken');
         navigate(paths.auth.signIn)
-    }
+    };
 
     const getStoredToken = (): string | null => {
         const storedToken = localStorage.getItem('jwtToken');
@@ -41,6 +41,6 @@ const useAuth = () => {
         getStoredToken,
         setMySeq
     }
-}
+};
 
 export default useAuth;

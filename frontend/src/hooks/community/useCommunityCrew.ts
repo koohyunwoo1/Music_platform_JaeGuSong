@@ -1,4 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useParams, useNavigate } from 'react-router-dom';
+import paths from "@/configs/paths";
 import axios from "axios";
 import { MakeCrewFormData } from "@/configs/community/makeCrew";
 
@@ -32,6 +34,8 @@ const UseCommunityCrew = () => {
     const [file, setFile] = useState<File | null>(null);
 
     const API_URL =import.meta.env.VITE_API_URL;
+    const { id } = useParams<{id: string}>();
+    const navigate = useNavigate();
 
     const goCrewFollow = async () => {
         setopenCrewFollowModal((prev) => !prev);
@@ -46,7 +50,7 @@ const UseCommunityCrew = () => {
         // 크루 가입 요청 api 연결
         const storedToken = localStorage.getItem('jwtToken');
         // 예시
-        const crewSeq =  4
+        const crewSeq =  {id}
         try {
             const response = await axios.post(
                 `${API_URL}/api/crew/join`,
@@ -69,17 +73,17 @@ const UseCommunityCrew = () => {
         // 크루장이 가입 요청 승인
         const storedToken = localStorage.getItem('jwtToken');
         // 요청 받았다고 리스트 필요함
-        // 일단은 예시 크루: 4, 유저:1
-        const userSeq = 1
-        const crewSeq = 4
+        // 일단은 예시 크루: 4, 유저:8
+        const userSeq = 8
+        const crewSeq = id
         // 이건 상황 봐가면서 계속 바꾸기
         try {
             console.log('승인받아', storedToken)
             const response = await axios.patch(
                 `${API_URL}/api/crew/accept`,
                 {
-                    "userSeq": 8,
-                    "crewSeq": 4,
+                    "userSeq": userSeq,
+                    "crewSeq": crewSeq,
                 },
                 {
                     headers: {
@@ -95,7 +99,6 @@ const UseCommunityCrew = () => {
     
     const goWithdrawCrew = async () => {
         setopenCrewWithdrawModal((prev) => !prev);
-        console.log('내가 탈퇴하고 싶음', crewNameSeq)
         const storedToken = localStorage.getItem('jwtToken');
         // 크루 탈퇴 api 연결
         try {
@@ -111,6 +114,7 @@ const UseCommunityCrew = () => {
                 }
             )
             console.log('나 크루 탈퇴했다! 빠이')
+            navigate(paths.community.main)
         } catch(error) {
             console.warn(error)
         }
@@ -184,7 +188,6 @@ const UseCommunityCrew = () => {
                     }
                 }
             )
-            console.log('크루생성완료')
             setMakeCrewModal((prev) => !prev);
         } catch(error) {
             console.warn(error)
@@ -194,7 +197,7 @@ const UseCommunityCrew = () => {
     const getCrewInfo = async () => {
         const storedToken = localStorage.getItem('jwtToken');
         // 임시
-        const crewSeq = 4
+        const crewSeq = id
         try {
           const response = await axios.get(
               `${API_URL}/api/crew/${crewSeq}`,

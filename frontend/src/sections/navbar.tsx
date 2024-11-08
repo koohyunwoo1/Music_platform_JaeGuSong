@@ -39,14 +39,14 @@ export default function Navbar() {
       value: "a",
       title: "커뮤니티",
       text: [
-        { label: "메인", path: paths.community.main },
+        { label: "메인", path: paths.community.myCommunity },
         {
           label: "검색",
           onclick: () => {
             setOpenUserHeader();
           },
         },
-        { label: "내 피드", path: paths.community.myCommunity },
+        // { label: "내 피드", path: paths.community.myCommunity },
       ],
     },
     {

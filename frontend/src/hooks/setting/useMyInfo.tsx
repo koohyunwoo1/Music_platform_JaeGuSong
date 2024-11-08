@@ -54,10 +54,9 @@ const useMyInfo = () => {
         }
     };
 
-    
-
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        e.preventDefault()
         const { name, value, type } = e.target;
         console.log('구현우 바보', name, value)
 

@@ -152,7 +152,6 @@ const useSignup = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("formData:", formData);
 
     const joinFormData = new FormData();
 

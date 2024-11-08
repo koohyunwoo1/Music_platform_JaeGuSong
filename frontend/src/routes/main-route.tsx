@@ -38,11 +38,15 @@ const mainRoute: RouteObject[] = [
         children: [
           {
             path: "",
-            element: <CommunityMainView />,
+            element: <CommunityMyCommunityView />,
           },
           {
             path: "my-community",
             element: <CommunityMyCommunityView />,
+          },
+          {
+            path: ":id",
+            element: <CommunityMainView />,
           },
           {
             path: "create",
