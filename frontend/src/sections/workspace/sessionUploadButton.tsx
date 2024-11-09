@@ -17,47 +17,57 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export default function SessionUploadButton({ artistSeq, onWorkspaceCreated }) {
+interface SessionUploadButtonProps {
+  workspaceSeq: number; // workspaceSeq를 props로 추가
+}
+
+// Base64 인코딩 함수
+const encodeFileToBase64 = (file: File) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+export default function SessionUploadButton({ workspaceSeq }: SessionUploadButtonProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState({
     file: "", // 파일 업로드 오류 메시지
   });
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const handleFileChange = (fileList: File[]) => {
-    //   setFiles(fileList);
-    //   setErrors((prevErrors) => ({
-    //     ...prevErrors,
-    //     file: "", // 파일 선택 시 오류 메시지 초기화
-    //   }));
-    // };
-    // 유효성 검사: 파일의 MIME 타입이 audio인지 확인
-    const validFiles = fileList.filter((file) => file.type.startsWith("audio"));
-    if (validFiles.length !== fileList.length) {
-      setErrors({ file: "오직 음원 파일만 업로드 가능합니다." });
-    } else {
-      setErrors({ file: "" });
-    }
-    setFiles(validFiles);
-  };
-
   const handleCreateSession = async () => {
+    console.log('세션 업로드 api 요청 보내는 handleCreateSession 실행시켜볼게')
+    console.log('files :', files)
+    console.log('files.acceptedFiles :', files.acceptedFiles)
+    console.log('files.acceptedFiles[0] :', files.acceptedFiles[0])
+    console.log('files.acceptedFiles[0].name :', files.acceptedFiles[0].name)
+
     if (files.length === 0) {
       setErrors({ file: "파일을 업로드해주세요." });
       return;
     }
 
-    const formData = new FormData();
-    formData.append("session", files[0]); // 첫 번째 파일만 업로드
+    // const formData = new FormData();
+    // formData.append("session", files[0]); // 첫 번째 파일만 업로드
 
     try {
+      // 파일을 Base64로 인코딩
+      const base64File = await encodeFileToBase64(files.acceptedFiles[0]);
+      console.log('base64File :', base64File)
+
       const storedToken = localStorage.getItem("jwtToken");
       const response = await axios.post(
-        `${API_URL}/api/workspaces/${artistSeq}/session`,
-        formData,
+        `${API_URL}/api/workspaces/${workspaceSeq}/session`,
+        {
+          session: base64File,
+        },
         {
           headers: {
             Authorization: `Bearer ${storedToken}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -101,19 +111,25 @@ export default function SessionUploadButton({ artistSeq, onWorkspaceCreated }) {
           >
             세션 추가
           </PopoverTitle>
-          <FileUploadRoot onFileChange={handleFileChange}>
+
+          {/* 파일 업로드 */}
+          <FileUploadRoot accept={["audio/*", "video/*"]} onFileChange={setFiles}>
             <FileUploadTrigger asChild>
               <Button variant="outline" size="sm">
+                {/* 파일 업로드 버튼 내의 아이콘 + 문구 */}
                 <HiUpload /> 파일 업로드
               </Button>
             </FileUploadTrigger>
             <FileUploadList />
           </FileUploadRoot>
+
+          {/* 파일 업로드 유효성 검사 실패 문구 */}
           {errors.file && (
             <Text color="red.500" fontSize="xs">
               {errors.file}
             </Text>
           )}
+
           <Button
             size="sm"
             variant="outline"

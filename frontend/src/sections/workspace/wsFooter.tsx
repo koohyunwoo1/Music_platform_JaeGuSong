@@ -3,16 +3,17 @@ import Play from "./play";
 import ButtonBox from "./buttonBox";
 import { useWsDetailStore } from "@/stores/wsDetailStore";
 
-interface WsHeaderProps {
+interface WsFooterProps {
   wsDetails: {
     name: string;
     originTitle: string;
     originSinger: string;
     state: string;
-  }[]; // 필요에 따라 각 워크스페이스의 데이터 필드를 수정
+  };
+  workspaceSeq: number; // workspaceSeq를 props로 추가
 }
 
-export default function WsFooter({ wsDetails }: WsHeaderProps) {
+export default function WsFooter({ wsDetails, workspaceSeq }: WsFooterProps) {
   // Zustand store에서 전체 재생 및 정지 제어를 위한 상태와 함수 가져오기
   const isPlaying = useWsDetailStore((state) => state.isPlaying);
   const playAll = useWsDetailStore((state) => state.playAll);
@@ -37,7 +38,7 @@ export default function WsFooter({ wsDetails }: WsHeaderProps) {
           onStop={stopAll} // 전체 정지 함수 전달
           mode="all" // 전체 모드로 설정
         />
-        <ButtonBox wsDetails={wsDetails} />
+        <ButtonBox wsDetails={wsDetails} workspaceSeq={workspaceSeq} />
       </Flex>
     </Stack>
   );
