@@ -48,7 +48,7 @@ export default function WsDetailView() {
 
       <SessionBox sessions={wsDetails.sounds || []} />
 
-      <WsFooter wsDetails={wsDetails} />
+      <WsFooter wsDetails={wsDetails} workspaceSeq={workspaceSeq} />
     </Stack>
   );
 }

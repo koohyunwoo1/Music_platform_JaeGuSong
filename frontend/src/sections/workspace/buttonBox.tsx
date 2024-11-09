@@ -3,9 +3,13 @@ import { Flex, Stack } from "@chakra-ui/react";
 import SessionUploadButton from "./sessionUploadButton";
 import useAuthStore from "@/stores/authStore";
 
-export default function ButtonBox() {
+interface ButtonBoxProps {
+  workspaceSeq: number; // workspaceSeq를 props로 추가
+}
+
+export default function ButtonBox({ workspaceSeq }: ButtonBoxProps) {
   // zustand에서 artistSeq 불러오기
-  const artistSeq = useAuthStore((state) => state.artistSeq);
+  // const artistSeq = useAuthStore((state) => state.artistSeq);
 
   return (
     <Stack direction="row" bg="gray.800" padding="4" borderRadius="md" gap="4">
@@ -15,7 +19,7 @@ export default function ButtonBox() {
         <WsButton>설정내역 리셋</WsButton>
         {/* <WsButton>세션 추가하기</WsButton> */}
         <SessionUploadButton
-          artistSeq={artistSeq}
+          workspaceSeq={workspaceSeq}
           // onWorkspaceCreated={handleWorkspaceCreated}
         />
         {/* <WsButton>세션 녹음하기</WsButton> */}
