@@ -97,6 +97,11 @@ const MyPageView: React.FC = () => {
     navigate(paths.community.generalCommunity(crew.crewSeq))
   }
 
+  const goCrewFeed = ({ crew }: { crew: Crew }) => {
+    setOpenUserHeader(false)
+    navigate(paths.community.generalCommunity(crew.crewSeq))
+  }
+
   return (
     <Flex
       justifyContent="center"
