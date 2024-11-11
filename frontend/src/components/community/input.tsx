@@ -1,5 +1,6 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { Box, Button, Input as ChakraInput, Textarea } from "@chakra-ui/react";
+import useCrewSeqStore from "@/stores/crewSeqStore";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import paths from "@/configs/paths";
@@ -8,16 +9,36 @@ const Input: React.FC = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
   const authStorage = localStorage.getItem("auth-storage");
-  let artistSeq: number | null = null;
+  const getCrewSeq = useCrewSeqStore((state) => state.getCrewSeq);
+  const setGetCrewSeq = useCrewSeqStore((state) => state.setGetCrewSeq);
+  // let artistSeq: number | null = null;
+  const [artistSeq, setArtistSeq] = useState<number | null>(null);
 
-  if (authStorage) {
-    try {
-      const parsedData = JSON.parse(authStorage);
-      artistSeq = parsedData?.state?.artistSeq || null;
-    } catch (error) {
-      console.error("Failed to parse auth-storage:", error);
+  // if (authStorage) {
+  //   try {
+  //     console.log('id는', getCrewSeq)
+  //     if ( getCrewSeq !== 0 ) {
+  //       artistSeq = getCrewSeq
+  //       setGetCrewSeq(0)
+  //     } else {
+  //     const parsedData = JSON.parse(authStorage);
+  //     artistSeq = parsedData?.state?.artistSeq || null;
+  //     }
+  //     console.log('어디에서 제출???', artistSeq)
+  //   } catch (error) {
+  //     console.error("Failed to parse auth-storage:", error);
+  //   }
+  // }
+
+  useEffect(() => {
+    if (getCrewSeq !== 0) {
+      setArtistSeq(getCrewSeq);
+      
+    } else {
+      const parsedData = JSON.parse(authStorage || "{}");
+      setArtistSeq(parsedData?.state?.artistSeq || null);
     }
-  }
+  }, [getCrewSeq, authStorage, setGetCrewSeq, artistSeq]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -37,6 +58,11 @@ const Input: React.FC = () => {
         ...prevFormData,
         attachmentFile: selectedFile, // 파일을 formData의 attachmentFile 상태에 저장
       }));
+    } else if (name === "visibility") {  // select에 대해서 특별히 처리
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        static: value, // select의 값은 static에 반영
+      }));
     } else {
       setFormData((prevFormData) => ({
         ...prevFormData,
@@ -47,20 +73,14 @@ const Input: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const storedToken = localStorage.getItem("jwtToken");
 
     const formDataToSubmit = new FormData();
 
-    // if (formData.attachmentFile) {
-    //     console.log('파일 추가 시도');
-    //     formDataToSubmit.append('files', formData.attachmentFile);
-    // }
-
     const boardRequestDto = {
       artistSeq: artistSeq,
       title: formData.title,
-      state: "공개",
+      state: formData.static,
       content: formData.content,
     };
 
@@ -70,33 +90,11 @@ const Input: React.FC = () => {
     );
 
     if (formData.attachmentFile) {
-      console.log("파일 추가 시도");
       formDataToSubmit.append("files", formData.attachmentFile);
-      console.log("성공?");
     }
-    // if(formData.attachmentFile!=null)
-    //     formData.attachmentFile.forEach(file=>formDataToSubmit.append('files', file))
 
-    console.log("formDataToSubmit", formDataToSubmit);
-    // console.log('boared', boardRequestDto)
 
     try {
-      // console.log(formDataToSubmit)
-      // formDataToSubmit.forEach((value, key) => {
-      //     console.log(key, '=>', value);
-      // });
-      formDataToSubmit.forEach((value, key) => {
-        if (value instanceof Blob && value.type === "application/json") {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const jsonContent = reader.result;
-            console.log(key, "=>", jsonContent); // JSON 내용 출력
-          };
-          reader.readAsText(value); // Blob을 텍스트로 읽기
-        } else {
-          console.log(key, "=>", value); // 파일이나 일반 텍스트일 경우 그대로 출력
-        }
-      });
       const response = await axios.post(
         `${API_URL}/api/boards`,
         formDataToSubmit,
@@ -109,6 +107,7 @@ const Input: React.FC = () => {
         }
       );
       console.log("Response:", response.data);
+      setGetCrewSeq(0); // 상태를 0으로 리셋
       navigate(paths.community.myCommunity);
     } catch (error) {
       console.error("Error while submitting form:", error);
@@ -141,7 +140,28 @@ const Input: React.FC = () => {
             resize="vertical"
           />
         </Box>
-
+        <Box mb={4}>
+          <label htmlFor="visibility" style={{ fontSize: "16px", color: "white" }}>공개</label>
+          <select
+            id="visibility"
+            name="visibility"
+            value={formData.static}
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              backgroundColor: "#02001F",
+              border: "1px solid #fff",
+              borderRadius: "5px",
+              color: "gray",
+              cursor: "pointer",
+            }}
+          >
+            <option value="선택">선택</option>
+            <option value="공개">공개</option>
+            <option value="비공개">비공개</option>
+          </select>
+        </Box>
         <Box mb={4}>
           <label>파일 첨부</label>
           <ChakraInput
