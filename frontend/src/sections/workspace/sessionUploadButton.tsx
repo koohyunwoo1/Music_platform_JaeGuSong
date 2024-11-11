@@ -53,21 +53,26 @@ export default function SessionUploadButton({ workspaceSeq }: SessionUploadButto
     // const formData = new FormData();
     // formData.append("session", files[0]); // 첫 번째 파일만 업로드
 
+    const formData = new FormData();
+    formData.append("session", files.acceptedFiles[0]); // 첫 번째 파일만 업로드
+
+
     try {
       // 파일을 Base64로 인코딩
-      const base64File = await encodeFileToBase64(files.acceptedFiles[0]);
-      console.log('base64File :', base64File)
-
+      // const base64File = await encodeFileToBase64(files.acceptedFiles[0]);
+      // console.log('base64File :', base64File)
+      console.log('formData', formData)
       const storedToken = localStorage.getItem("jwtToken");
       const response = await axios.post(
         `${API_URL}/api/workspaces/${workspaceSeq}/session`,
-        {
-          session: base64File,
-        },
+        // {
+        //   session: base64File,
+        // },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
           },
         }
       );
@@ -77,7 +82,7 @@ export default function SessionUploadButton({ workspaceSeq }: SessionUploadButto
         type: "success",
       });
 
-      onWorkspaceCreated(); // 세션 추가 후 목록을 다시 로드
+      // onWorkspaceCreated(); // 세션 추가 후 목록을 다시 로드
     } catch (error) {
       console.error("Error adding session:", error);
       toaster.create({
