@@ -58,7 +58,6 @@ const CommunityDetailView: React.FC = () => {
           }
         );
         const article = response.data;
-
         setArtistSeq(article.artistDto?.seq || "")
         setNickname(article.artistDto?.nickname || "");
         setProfileImage(article.artistDto?.profileImage || "");
@@ -68,7 +67,6 @@ const CommunityDetailView: React.FC = () => {
         setSources(article.sources || []);
         setState(article.state || "");
         setTitle(article.title || "");
-        console.log(response.data)
       } catch (error) {
         console.error(error);
       }
@@ -83,32 +81,6 @@ const CommunityDetailView: React.FC = () => {
     setMyLikeNum((prevNum) => (newLikedStatus ? prevNum + 1 : prevNum - 1));
   };
 
-  const goworkSpace = async () => {
-    if (!id) {
-      console.error("ID is undefined");
-      return; // id가 undefined인 경우 함수 종료
-    }
-    const numericId = Number(id);
-    // 워크 스페이스 url
-    // navigate(paths.community.update(numericId));
-    // 토큰 가져오기
-
-    // 이걸로 workspace seq를 가지고 와서
-    // try {
-    //     const response = await axios.get(
-    //         `${API_URL}/api/boards/workspace`,
-    //     //  {
-    //     //    headers: {
-    //     //               access: `${token}`,
-    //     //    },
-    //     //  }
-    //     const workspaceSeq = response.어쩌구
-    //     )
-    //     navigator(workspace로 갈거임)
-    // } catch(error) {
-    //     console.error(error)
-    // }
-  };
 
   const handleUpdateArticle = () => {
     if (!id) {
@@ -161,28 +133,28 @@ const CommunityDetailView: React.FC = () => {
             <Text textStyle="2xl" margin=" 15px 0">{title}</Text>
             <Separator />
             {/* 사진 여러 개 있으면 반복문으로 받기 */}
-            <Box margin="10px 25px">
-              <img 
-                  width="400px"
-                  height="400px"   
-                  style={{ objectFit: 'fill' }}
-                  src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${sources[0]}`}
-              />  
+            <Box marginTop="30px">
+              { sources.length > 0 && 
+                <>
+                  <img 
+                    width="350px"
+                    height="350px"   
+                    style={{ objectFit: 'fill' }}
+                    src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${sources[0]}`}
+                  />  
+                </> 
+              }
               <Text textStyle="1xl">{content}</Text>
             </Box>              
           </Box>  
-
-          <Box display="flex" gap="3" marginTop="20px" marginLeft="10px">
-            <CommunityButton 
-              title="워크스페이스 가기" 
-              onClick={goworkSpace} 
-            />
+          <Box display="flex" gap="2" marginTop="20px" marginLeft="15px">
+            {/* <CommunityButton title="워크스페이스 가기" onClick={goworkSpace} /> */}
             <CommunityButton
               title={`좋아요 ${myLikedNum.toString()}`}
               onClick={changeMyLiked}
             />
           </Box>
-          <Reviewcontainer comments={comments} commentsLength={comments.length} />
+          <Reviewcontainer comments={comments}/>
           {openDeleteModal && (
             <Modal
               isOpen={openDeleteModal}

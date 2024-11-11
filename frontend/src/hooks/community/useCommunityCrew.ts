@@ -1,18 +1,17 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import paths from "@/configs/paths";
 import axios from "axios";
 import { MakeCrewFormData } from "@/configs/community/makeCrew";
+import useCrewSeqStore from '@/stores/crewSeqStore';
 
 
 const UseCommunityCrew = () => {
-    const [ isCrewFollow, setIsCrewFollow ] = useState<boolean>(false);
-    const [ isjoinCrew, setIsJoinCrew ] = useState<boolean>(false);
-    const [ withdrawCrew, setWithDrawCrew ] = useState<boolean>(false);
     const [ openCrewFollowModal, setopenCrewFollowModal ] = useState<boolean>(false);
     const [ openCrewJoinModal, setopenCrewJoinModal ] = useState<boolean>(false);
     const [ openCrewWithdrawModal, setopenCrewWithdrawModal ] = useState<boolean>(false);
     const [ openCrewMembersModal, setOpenCrewMembersModal ] = useState<boolean>(false);
+    const [ openCrewApproveModal, setOpenCrewApproveModal ] = useState<boolean>(false);
     const [ openMakeCrewModal, setMakeCrewModal ] = useState<boolean>(false);
     const [ crewName, setCrewName ] = useState<string>('');
     const [ crewNameSeq, setCrewNameSeq ] = useState<string>('');
@@ -22,6 +21,7 @@ const UseCommunityCrew = () => {
     const [ crewMembers, setCrewMembers ] = useState<any[]>([]);
     const [ myCrewsSeq, setMyCrewsSeq ] = useState<any[]>([]);
     const [ myName, setMyName ] = useState<string>('');
+    const getCrewSeq = useCrewSeqStore((state) => state.getCrewSeq);
 
     const [ makeCrewFormData, setMakeCrewFormData ] = useState<MakeCrewFormData>({
         birth: new Date().toISOString().split('T')[0],
@@ -31,11 +31,11 @@ const UseCommunityCrew = () => {
         content: '',
         profileImage: null as File | null,
     });
-    const [file, setFile] = useState<File | null>(null);
 
     const API_URL =import.meta.env.VITE_API_URL;
-    const { id } = useParams<{id: string}>();
+
     const navigate = useNavigate();
+    const { id } = useParams<{id: string}>();
 
     const goCrewFollow = async () => {
         setopenCrewFollowModal((prev) => !prev);
@@ -63,7 +63,6 @@ const UseCommunityCrew = () => {
                     }
                 }
             )
-            console.log('크루 가입 신청 완료', response)
         } catch(error) {
             console.warn(error)
         }
@@ -74,11 +73,10 @@ const UseCommunityCrew = () => {
         const storedToken = localStorage.getItem('jwtToken');
         // 요청 받았다고 리스트 필요함
         // 일단은 예시 크루: 4, 유저:8
-        const userSeq = 8
+        const userSeq = 3
         const crewSeq = id
         // 이건 상황 봐가면서 계속 바꾸기
         try {
-            console.log('승인받아', storedToken)
             const response = await axios.patch(
                 `${API_URL}/api/crew/accept`,
                 {
@@ -92,6 +90,33 @@ const UseCommunityCrew = () => {
                 }
             )
             console.log('크루 가입 신청 승인 완료', response)
+        } catch(error) {
+            console.warn(error)
+        }
+    };
+
+    const handleCrewDeclineModal = async () => {
+        // 크루장이 가입 요청 거절
+        const storedToken = localStorage.getItem('jwtToken');
+        // 요청 받았다고 리스트 필요함
+        // 일단은 예시 크루: 4, 유저:8
+        const userSeq = 8
+        const crewSeq = id
+        // 이건 상황 봐가면서 계속 바꾸기
+        try {
+            const response = await axios.patch(
+                `${API_URL}/api/crew/decline`,
+                {
+                    "userSeq": userSeq,
+                    "crewSeq": crewSeq,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`
+                    },
+                }
+            )
+            console.log('크루 가입 신청 거절 완료', response)
         } catch(error) {
             console.warn(error)
         }
@@ -154,7 +179,6 @@ const UseCommunityCrew = () => {
         
     const makeCrew = async (makeCrewFormData: MakeCrewFormData) => {
         const storedToken = localStorage.getItem('jwtToken');
-        console.log('formdata 확인', makeCrewFormData)
         
         const formData = new FormData();
 
@@ -196,8 +220,14 @@ const UseCommunityCrew = () => {
 
     const getCrewInfo = async () => {
         const storedToken = localStorage.getItem('jwtToken');
+        let crewSeq = 0;
         // 임시
-        const crewSeq = id
+
+        if ( id === undefined ) {
+            crewSeq = getCrewSeq;
+        } else {
+            crewSeq =  parseInt(id)
+        }
         try {
           const response = await axios.get(
               `${API_URL}/api/crew/${crewSeq}`,
@@ -239,14 +269,12 @@ const UseCommunityCrew = () => {
     
 
     return {
-        isCrewFollow,
-        isjoinCrew,
-        withdrawCrew,
         openCrewFollowModal,
         openCrewJoinModal,
         openCrewWithdrawModal,
         openCrewMembersModal,
         openMakeCrewModal,
+        openCrewApproveModal,
         makeCrewFormData,
         crewNameSeq,
         crewName,
@@ -262,9 +290,11 @@ const UseCommunityCrew = () => {
         setopenCrewFollowModal,
         setopenCrewJoinModal,
         setopenCrewWithdrawModal,
+        setOpenCrewApproveModal,
         handleCrewFollowModal,
         handleCrewJoinModal,
         handleCrewApproveModal,
+        handleCrewDeclineModal,
         handleCrewWithdrawModal,
         handleCrewMembers,
         handleMakeCrewModal,

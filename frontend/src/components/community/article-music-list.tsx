@@ -1,86 +1,75 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Flex } from "@chakra-ui/react"
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, GridItem } from "@chakra-ui/react";
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import useCommunityMusic from '@/hooks/community/useCommunityMusic';
-import useAuthStore from "@/stores/authStore";
+import MusicArticleItems from './musicArticleItems';
+
+export interface MyMusicFeedList {
+  name: string;
+  originSinger: string;
+  originTitle: string;
+  state: string;
+  tuhmbnail: string;
+  workspaceSeq: number;
+}
 
 const ArticleMusicList: React.FC = () => {
-    const API_URL = import.meta.env.VITE_API_URL;
-    const {
-      goMusicFeedDetail
-    } = useCommunityMusic();
-    
-    useEffect(() => {
-      const getMusicFeedList = async () => {
-        const authStorage = localStorage.getItem("auth-storage");
-        const storedToken = localStorage.getItem('jwtToken');
-        let artistSeq: number | null = null;
+  const API_URL = import.meta.env.VITE_API_URL;
+  const { id } = useParams();
 
-        if (authStorage) {
-          try {
-            const parsedData = JSON.parse(authStorage);
-            artistSeq = parsedData?.state?.artistSeq || null;
-          } catch (error) {
-            console.error("Failed to parse auth-storage:", error);
-          }
-        }
+  const [ myMusicFeedList, setMyMusicFeedList ] = useState<MyMusicFeedList[]>([]);
+
+  useEffect(() => {
+    const getMusicFeed = async () => {
+      const authStorage = localStorage.getItem("auth-storage");
+      const storedToken = localStorage.getItem('jwtToken');
+      let artistSeq: number | null = null;
+
+      if (authStorage) {
         try {
-          const response = await axios.get(
-            `${API_URL}/api/workspaces/artists/${artistSeq}`,
-            {
-              headers: {
-                Authorization: `Bearer ${storedToken}`
-              },
-            }
-          )
-          console.log('dsfsfsafsa', response.data)
-        } catch(error) {
-          console.warn(error);
+          const parsedData = JSON.parse(authStorage);
+          artistSeq = parsedData?.state?.artistSeq || null;
+        } catch (error) {
+          console.error("Failed to parse auth-storage:", error);
         }
+      };
+
+      if (id !== undefined) {
+        artistSeq = parseInt(id)
+      };
+
+      try {
+        const response = await axios.get(`${API_URL}/api/artists/${artistSeq}/workspaces`, {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        });
+        setMyMusicFeedList(response.data);
+      } catch(error) {
+        console.warn(error);
       }
-    }, []);
+    };
+    getMusicFeed();
+  }, []);
+
   return (
-    <Box                
-        height="800px"
-        overflowY="auto"
-        css={{
-            '&::-webkit-scrollbar': {
-                width: '8px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-                background: '#e3f2f9',
-                borderRadius: '20px',
-            },
-            '&::-webkit-scrollbar-track': {
-                background: '#02001F',
-                borderRadius: '20px',
-            },
-        }}
-    >
-    <Flex
-    wrap="wrap" 
-    margin="60px 200px"
-    gap="30px"
-
->
-    {/* {musicArticles.map((article) => (
-        <Button
-            key={article.board_seq}
-            size="xs"
-            variant="outline" 
-            borderColor="#c5e4f3"
-            width="300px"
-            height="350px"
-            color="white"
-            onClick={() => goMusicFeedDetail(article)}
-        >
-            {article.title}
-        </Button>
-    ))} */}
-</Flex>
-</Box>
+    <Box marginBottom="200px">
+      <Grid
+        templateColumns="repeat(3, 1fr)" 
+        gap="2"
+        margin="60px"
+        marginLeft="90px"
+      >
+        { myMusicFeedList &&
+          myMusicFeedList.map((myMusic, index) => (
+            <GridItem key={index}> 
+              <MusicArticleItems myMusic={myMusic} />
+            </GridItem>
+          ))
+        }
+      </Grid>
+    </Box>
   );
-
 };
 
 export default ArticleMusicList;

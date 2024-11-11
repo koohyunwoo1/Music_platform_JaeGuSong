@@ -23,20 +23,22 @@ const useCommunityMain = () => {
     }
 
     // 게시물 목록 가져오기
-    const getArticleList = async (authStorage: Number) => {
+    const getArticleList = async (artistSeq: Number) => {
         const storedToken = localStorage.getItem('jwtToken');
 
+        if (!storedToken || artistSeq === null) {
+            console.error('No token or invalid artistSeq');
+            return;
+        }
+
         try {
-            console.log('게시물 목록 가져올거임', authStorage)
-            const response = await axios.get(`${API_URL}/api/boards/${authStorage}`,
+            const response = await axios.get(`${API_URL}/api/boards/artists/${artistSeq}`,
             {
                 headers: {
                     Authorization: `Bearer ${storedToken}`
                 },
             })
-            // 배열에 넣어서 map으로 돌리기
-            console.log('안녕ㄴㄹㄴㅇ', response.data)
-        setMyFeedArticleItems(response.data);
+        setMyFeedArticleItems([response.data]);
         } catch(error) {
           console.error(error)
         }

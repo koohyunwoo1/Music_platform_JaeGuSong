@@ -174,6 +174,7 @@ const useSignup = () => {
 
     if (formData.profileImage) {
       joinFormData.append("profileImage", formData.profileImage);
+      console.log('이미ㅣㄴ 젛었다', formData.profileImage)
     }
 
     try {
@@ -219,10 +220,6 @@ const useSignup = () => {
       profileImage: file,
     });
   };
-
-  useEffect(() => {
-    console.log("폼 데이터 업데이트:", formData);
-  }, [formData]);
 
   return {
     notices,

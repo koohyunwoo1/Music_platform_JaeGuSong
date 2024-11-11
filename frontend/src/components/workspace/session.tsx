@@ -1,10 +1,12 @@
-import { Box, Stack, Text, Flex, Card } from "@chakra-ui/react";
+import axios from "axios";
+import { Box, Stack, Text, Flex, Card, Button } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import ToggleOptions from "./toggleOptions";
 import CursorMarker from "./cursorMarker";
 import { Checkbox } from "../ui/checkbox";
 import Play from "@/sections/workspace/play";
+import { toaster } from "@/components/ui/toaster";
 import { useWsDetailStore } from "@/stores/wsDetailStore";
 
 interface SessionProps {
@@ -13,6 +15,9 @@ interface SessionProps {
   type: string;
   startPoint: number;
   endPoint: number;
+  workspaceSeq: number; // workspaceSeq를 props로 추가
+  // onDelete: (sessionId: string) => void; // 삭제 핸들러 추가
+  onSessionDelete: (sessionId: string) => void; // 삭제 핸들러 추가
 }
 
 export default function Session({
@@ -21,7 +26,11 @@ export default function Session({
   type,
   startPoint,
   endPoint,
-}: SessionProps) {
+  workspaceSeq,
+  // onDelete,
+  onSessionDelete,
+// }: SessionProps) {
+}: SessionProps & { onSessionDelete: (sessionId: number) => void }) {
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -32,6 +41,7 @@ export default function Session({
   const addSession = useWsDetailStore((state) => state.addSession);
   const removeSession = useWsDetailStore((state) => state.removeSession);
   const toggleSession = useWsDetailStore((state) => state.toggleSession);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!waveformRef.current) return;
@@ -109,6 +119,38 @@ export default function Session({
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const handleDeleteSession = async () => {
+    console.log('세션 삭제 요청 api 날려볼게')
+
+    try {
+      const storedToken = localStorage.getItem("jwtToken");
+      const response = await axios.delete(
+        `${API_URL}/api/workspaces/${workspaceSeq}/session/${sessionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      toaster.create({
+        description: "세션이 성공적으로 삭제되었습니다.",
+        type: "success",
+      });
+
+      // onDelete(sessionId); // 삭제 후 부모 컴포넌트의 상태 업데이트
+      onSessionDelete(Number(sessionId)); // 부모 컴포넌트에 삭제를 알림
+
+    } catch (error) {
+      console.error("Error adding session:", error);
+      toaster.create({
+        description: "세션 삭제에 실패했습니다.",
+        type: "error",
+      });
+    }
+  }
+
   return (
     <Card.Root bg="transparent" color="white" padding="2" borderColor="grey">
       <Flex gap={3}>
@@ -147,6 +189,10 @@ export default function Session({
           onStop={handleStop}
           mode="individual"
         />
+
+        {/* <Button onClick={handleDeleteSession}>삭제</Button> */}
+        <Button onClick={handleDeleteSession}>삭제</Button>
+
       </Flex>
     </Card.Root>
   );

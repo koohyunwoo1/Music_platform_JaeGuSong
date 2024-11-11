@@ -1,24 +1,21 @@
 import React from 'react';
 import { Box, Stack, Separator, Text } from "@chakra-ui/react"
 
-interface ReviewContainerProps {
+interface ReviewcontainerProps {
   comments: any[];
-  commentsLength: number;
 }
 
-const Reviewcontainer: React.FC<ReviewContainerProps> = ({ comments, commentsLength }) => {
+const Reviewcontainer: React.FC<ReviewcontainerProps> = ({ comments }) => {
   return (
     <Box marginBottom="500px">
     <Stack>
       <Separator size="xs" marginTop="20px" />
-      <Text marginLeft="5px">댓글</Text>
+      <Text marginLeft="10px">댓글</Text>
       <Separator size="xs" />
-      {commentsLength === 0 ? (
-        <Box>댓글이 없습니다.</Box>
-        ) : (
-          comments.map((comment, index) => (
-            <Box key={index}>{comment}</Box>
-          ))
+      {comments.length === 0 ? (
+        <Text marginLeft="10px">등록된 댓글이 없습니다.</Text>
+      ) : (
+        <Text>등록된 댓글이 있습니다.</Text>
       )}
     </Stack>
     </Box>
