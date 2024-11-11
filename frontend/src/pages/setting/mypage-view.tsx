@@ -122,6 +122,7 @@ const MyPageView: React.FC = () => {
                 borderRadius="md"
                 boxShadow="lg"
                 onClick={() => goCrewFeed({crew})}
+                cursor="pointer"
               >
                 <Image
                   src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crew.profileImage}`}
