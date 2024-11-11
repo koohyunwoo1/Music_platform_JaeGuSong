@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import {
   SignupFormData,
   SignupInputFields,
@@ -10,6 +10,7 @@ import {
   Input as ChakraInput,
   Text,
 } from "@chakra-ui/react";
+import { Checkbox } from "@/components/ui/checkbox"
 import Modal from "@/components/common/Modal";
 import useSignup from "@/hooks/auth/useSignup";
 
@@ -24,7 +25,6 @@ const Input: React.FC = () => {
     currentStep,
     openSignupModal,
     verifyMessage,
-    setFormData,
     handleChange,
     handleBlur,
     sendVerifyNumber,
@@ -35,23 +35,13 @@ const Input: React.FC = () => {
     handleFileChange,
     setOpenSignupModal,
   } = useSignup();
+  
+  const [ isChecked, setIsChecked ] = useState(false);
 
-  const myFormData = new FormData();
-
-  const [file, setFile] = useState<File | null>(null);
-
-  // 파일 선택 시 호출되는 핸들러
-  const handleFileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-
-      setFormData({
-        ...formData,
-        profileImage: selectedFile,
-      });
-    }
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked)
   };
+
 
   return (
     <Box width="100%" maxW="md" mx="auto">
@@ -150,6 +140,7 @@ const Input: React.FC = () => {
                   borderColor: "white",
                   marginTop: "20px",
                 }}
+                autoComplete="off"
               />
             </Box>
             <Box mb={4}>
@@ -168,6 +159,7 @@ const Input: React.FC = () => {
                   borderColor: "white",
                   marginTop: "20px",
                 }}
+                autoComplete="off"
               />
               {notices["confirmPassword"] && (
                 <Text
@@ -316,9 +308,19 @@ const Input: React.FC = () => {
               onClose={() => setOpenSignupModal(false)}
             >
               <Box padding="5px 20px">
-                <Text color="black" margin="40px">
-                  회원가입 하시겠습니까?
+                <Text color="black" marginTop="40px" whiteSpace="pre-line">
+                  재구송을 통해 일어나는 모든 창작 활동에 대해{"\n"} 
+                  재구송은 저작권 책임을 지지 않습니다.
                 </Text>
+                <Checkbox  
+                  marginTop="20px"
+                  marginBottom="15px" 
+                  variant="subtle" 
+                  color="#02001F"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCheckboxChange(e)}
+                >
+                  동의
+                </Checkbox>
                 <Box
                   margin="10px"
                   display="flex"
@@ -327,17 +329,11 @@ const Input: React.FC = () => {
                 >
                   <Button
                     type="submit"
-                    width="75px"
+                    width="150px"
                     _hover={{ backgroundColor: "gray", color: "black" }}
+                    disabled={!isChecked}
                   >
-                    예
-                  </Button>
-                  <Button
-                    onClick={() => setOpenSignupModal(false)}
-                    width="75px"
-                    _hover={{ backgroundColor: "gray", color: "black" }}
-                  >
-                    아니요
+                    회원가입 하기
                   </Button>
                 </Box>
               </Box>

@@ -55,7 +55,6 @@ const Input: React.FC = () => {
 
     // 백한테 로그인 정보 보내기
     try {
-      console.log("로그인할거야", formData);
       const response = await axios.post(`${API_URL}/api/auth/login`, null, {
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +65,6 @@ const Input: React.FC = () => {
         },
         // withCredentials: true,
       });
-      console.log(response);
       const token = response.headers.authorization.split(" ")[1];
       localStorage.setItem("jwtToken", token);
       setErrorMessage(null); // 성공하면 에러 메시지 초기화
@@ -74,7 +72,6 @@ const Input: React.FC = () => {
     } catch (error) {
       const axiosError = error as AxiosError;
       console.warn(error);
-      console.log("error");
       if (axiosError.response) {
         setErrorMessage(
           (axiosError.response.data as { message?: string })?.message ||
@@ -107,6 +104,7 @@ const Input: React.FC = () => {
                   : "비밀번호를 입력해주세요."
               }
               style={{ color: "white", marginTop: "20px" }}
+              autoComplete="off"
             ></ChakraInput>
           </Box>
         ))}

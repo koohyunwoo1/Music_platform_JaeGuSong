@@ -4,15 +4,12 @@ import { Box, Text } from '@chakra-ui/react';
 import CommunityButton from './community-button';
 import { useNavigate } from 'react-router-dom';
 import paths from '@/configs/paths';
-import useAuth from '@/hooks/auth/useAuth';
-import useSearch from '@/hooks/navbar/useSearch';
 
 const Header: React.FC =  () => {
   const API_URL =import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [ myNickname, setMyNickname ] = useState<string>('');
-  const [ mySeq, setMySeq ] = useState<Number>(0);
-  // const { openSearchModal } = useSearch();
+  const [ myProfileImage, setMyProfileImage ] = useState<string>('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -28,9 +25,8 @@ const Header: React.FC =  () => {
               withCredentials: true,
             }
           );
-          console.log('Response:', response.data);
           setMyNickname(response.data.nickname)
-          setMySeq(response.data.seq)
+          setMyProfileImage(response.data.profileImage)
         } catch (error) {
           console.warn('Error during API request:', error);
         }
@@ -46,6 +42,10 @@ const Header: React.FC =  () => {
 
   const goCreateArticle = () => {
       navigate(paths.community.create);
+  }
+
+  const goCreateMusicArticle = () => {
+    navigate(paths.divider.upload)
   }
   return (
     <Box
@@ -64,13 +64,16 @@ const Header: React.FC =  () => {
           alignItems="center"
           gap="5px"
         >
-          <img></img>
-          <Text textStyle="3xl" marginTop="15px">{myNickname}</Text>
-          <Text textStyle="xl" marginTop="15px">님의 피드</Text>
+          <Box width="70px" height="70px">
+            <img src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${myProfileImage}`} alt={`${myProfileImage}`}></img>
+          </Box>            
+          <Text textStyle="3xl" marginTop="10px">{myNickname}</Text>
+          <Text textStyle="xl" marginTop="10px">님의 피드</Text>
         </Box>          
       </Box>        
       <Box 
         marginTop="20px"
+        marginRight="20px"
         display="flex"
         justifyContent="flex-end"
         gap="5px"
@@ -81,7 +84,7 @@ const Header: React.FC =  () => {
           />
         <CommunityButton
           title='음원피드 올리기'
-          onClick={goCreateArticle}
+          onClick={goCreateMusicArticle}
         />
       </Box>        
     </Box>
