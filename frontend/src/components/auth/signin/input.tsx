@@ -104,7 +104,7 @@ const Input: React.FC = () => {
                   : "비밀번호를 입력해주세요."
               }
               style={{ color: "white", marginTop: "20px" }}
-              autoComplete="off"
+              autoComplete={field.name === "password" ? "off" : "on"}
             ></ChakraInput>
           </Box>
         ))}

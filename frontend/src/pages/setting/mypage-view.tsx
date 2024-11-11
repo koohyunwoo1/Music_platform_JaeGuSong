@@ -92,10 +92,6 @@ const MyPageView: React.FC = () => {
     }
   }, [crewsInfo]);
 
-  const goCrewFeed = ({ crew }: { crew: Crew }) => {
-    console.log('dsfsf', crew.crewSeq)
-    navigate(paths.community.generalCommunity(crew.crewSeq))
-  }
 
   const goCrewFeed = ({ crew }: { crew: Crew }) => {
     setOpenUserHeader(false)
