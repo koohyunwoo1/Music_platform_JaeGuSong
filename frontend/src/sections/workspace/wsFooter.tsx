@@ -8,6 +8,7 @@ interface WsFooterProps {
     name: string;
     originTitle: string;
     originSinger: string;
+    role: string;
     state: string;
   };
   workspaceSeq: number; // workspaceSeq를 props로 추가
