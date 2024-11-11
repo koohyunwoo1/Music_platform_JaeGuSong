@@ -1,29 +1,29 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Box,
-  Text,
-  Button,
-  Input as ChakraInput,
-  Textarea,
-  Card,
-  Image,
-  Flex,
-} from "@chakra-ui/react";
+import { Box, Text, Button, Input as ChakraInput, Textarea, Card, Image, Flex } from "@chakra-ui/react";
 import Modal from "@/components/common/Modal";
 import CommunityButton from "@/components/community/community-button";
 import UseCommunityCrew from "@/hooks/community/useCommunityCrew";
 import useMyCrew from "@/hooks/setting/useMyCrew";
-import useMyInfo from "@/hooks/setting/useMyInfo";
 import { UserInfo } from "@/hooks/setting/useMyInfo";
 import { MakeCrewInputFields } from "@/configs/community/makeCrew";
 import MyInfo from "@/components/setting/myInfo";
+import paths from "@/configs/paths";
+import { useNavigate } from "react-router-dom";
+import useHeaderStore from "@/stores/headerStore";
+
+type Crew = {
+  crewSeq: number;
+  profileImage: string;
+  nickname: string;
+};
 
 const MyPageView: React.FC = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const [crewsInfo, setCrewsInfo] = useState([]);
   const [myInfo, setMyInfo] = useState<UserInfo | null>(null);
+  const { setOpenUserHeader } = useHeaderStore(state => state);
   const {
     openMakeCrewModal,
     makeCrewFormData,
@@ -34,7 +34,7 @@ const MyPageView: React.FC = () => {
   } = UseCommunityCrew();
 
   const { crewData, getMyCrews } = useMyCrew();
-
+  const navigate = useNavigate();
   const formData = new FormData();
 
   // 파일 선택을 위한 상태 추가
@@ -83,7 +83,6 @@ const MyPageView: React.FC = () => {
         console.warn("No stored token found");
       }
     };
-
     fetchUserInfo(); // 유저 정보 가져오기
   }, []); // 의존성 추가
 
@@ -92,6 +91,11 @@ const MyPageView: React.FC = () => {
       getMyCrews(crewsInfo);
     }
   }, [crewsInfo, getMyCrews]);
+
+  const goCrewFeed = ({ crew }: { crew: Crew }) => {
+    setOpenUserHeader(false)
+    navigate(paths.community.generalCommunity(crew.crewSeq))
+  }
 
   return (
     <Flex
@@ -117,6 +121,8 @@ const MyPageView: React.FC = () => {
                 background="#2d3748"
                 borderRadius="md"
                 boxShadow="lg"
+                onClick={() => goCrewFeed({crew})}
+                cursor="pointer"
               >
                 <Image
                   src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crew.profileImage}`}
@@ -253,7 +259,7 @@ const MyPageView: React.FC = () => {
             </Box>
           </Modal>
         )}
-        <MyInfo myInfo={myInfo} />
+        <MyInfo myInfo={myInfo ? myInfo : {}} />
       </Box>
     </Flex>
   );

@@ -47,12 +47,34 @@ const genres = [
   "기타",
 ];
 
+
+
 const MyInfo: React.FC<{ myInfo: UserInfo }> = ({ myInfo }) => {
   const { createOrUpdateMyInfo } = useMyInfo();
-  const [modifiedInfo, setModifiedInfo] = useState<UserInfo>(myInfo);
+  const [modifiedInfo, setModifiedInfo] = useState<UserInfo>({
+    ...myInfo,
+    nickname: myInfo.nickname || "",
+    name: myInfo.name || "",
+    email: myInfo.email || "",
+    region: myInfo.region || "",
+    gender: myInfo.gender || "",
+    position: myInfo.position || "",
+    genre: myInfo.genre || "",
+    birth: myInfo.birth || "",
+  });
 
   useEffect(() => {
-    setModifiedInfo(myInfo); // 초기 값 설정
+    setModifiedInfo({
+      ...myInfo,
+      nickname: myInfo.nickname || "",
+      name: myInfo.name || "",
+      email: myInfo.email || "",
+      region: myInfo.region || "",
+      gender: myInfo.gender || "",
+      position: myInfo.position || "",
+      genre: myInfo.genre || "",
+      birth: myInfo.birth || "",
+    }); // 초기 값 설정
   }, [myInfo]);
 
   const handleChange = (
@@ -258,11 +280,9 @@ const MyInfo: React.FC<{ myInfo: UserInfo }> = ({ myInfo }) => {
               type="date"
               name="birth"
               onChange={handleChange}
-              value={modifiedInfo.bitrh}
               background="#02001F"
               color="gray"
               width="300px"
-              defaultValue={myInfo.bitrh}
               marginLeft="10px"
               cursor="pointer"
             />

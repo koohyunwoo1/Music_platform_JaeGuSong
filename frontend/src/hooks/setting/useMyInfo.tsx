@@ -1,10 +1,8 @@
-import { useEffect, useState, FormEvent, ChangeEvent
-
- } from "react";
+import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import axios from "axios";
 
 export interface UserInfo {
-    bitrh: string;
+    birth: string;
     content: string | null;
     crews: number[];
     email: string;
@@ -54,16 +52,30 @@ const useMyInfo = () => {
         }
     };
 
-
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        e.preventDefault()
+        e.preventDefault();
         const { name, value, type } = e.target;
-        console.log('구현우 바보', name, value)
+        console.log('구현우 바보', name, value);
 
         setMyInfo((prevFormData: UserInfo | null) => {
-            // prevFormData가 null일 경우 빈 객체로 초기화
-            const updatedFormData: UserInfo = prevFormData ?? {} as UserInfo;
-    
+            const updatedFormData: UserInfo = {
+                // prevFormData가 null일 경우 기본값을 설정
+                ...(prevFormData ?? {
+                    birth: '',
+                    content: null,
+                    crews: [],
+                    email: '',
+                    gender: '',
+                    genre: '',
+                    name: '',
+                    nickname: '',
+                    position: '',
+                    profileImage: null,
+                    region: '',
+                    seq: 0,
+                }),
+            };
+
             if (type === 'file' && e.target instanceof HTMLInputElement) {
                 const files = e.target.files;
                 if (files && files.length > 0) {
@@ -73,15 +85,14 @@ const useMyInfo = () => {
                 // name을 keyof UserInfo로 단언하여 타입을 명확히 함
                 updatedFormData[name as keyof UserInfo] = value;
             }
-    
+
             return updatedFormData;
         });
     };
-    
 
     const createOrUpdateMyInfo = async (userData: UserInfo) => {
         try {
-            console.log('userData:', userData)
+            console.log('userData:', userData);
             const storedToken = localStorage.getItem('jwtToken');
             if (!storedToken) return;
 
@@ -99,14 +110,13 @@ const useMyInfo = () => {
     //     fetchUserInfo(); // 컴포넌트가 마운트될 때 fetchUserInfo 호출
     // }, []);
 
-    return { 
-        myInfo, 
+    return {
+        myInfo,
         createOrUpdateMyInfo,
-        setMyInfo, 
+        setMyInfo,
         updateMyInfo,
-        handleChange
+        handleChange,
     };
 };
 
-
-export default useMyInfo
+export default useMyInfo;

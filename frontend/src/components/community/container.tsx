@@ -15,7 +15,7 @@ const Container: React.FC<ContainerProps> = ({ children }) => {
       width="calc(100% - 280px)"
       minHeight="100vh"
       height="100px"
-      marginTop="130px"
+      marginTop="150px"
       marginRight="20px"
       overflowY="auto"
       css={{
