@@ -82,13 +82,16 @@ export default function CardList({ wsList, fetchWsList }: CardListProps) {
   };
 
   return (
-    <Stack>
+    <Stack
+    // alignItems="center"
+    >
       {wsList.map((ws) => (
         <Card.Root
           key={ws.workspaceSeq}
           flexDirection="row"
           overflow="hidden"
-          maxW="xl"
+          // maxW="xl"
+          width="98%"
         >
           <Image
             objectFit="cover"
@@ -102,7 +105,7 @@ export default function CardList({ wsList, fetchWsList }: CardListProps) {
             }
             alt="Thumbnail"
           />
-          <Box>
+          <Box width="100%">
             <Flex justifyContent="space-between">
               <Stack>
                 <Card.Body>
