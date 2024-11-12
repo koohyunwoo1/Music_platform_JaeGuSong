@@ -19,18 +19,18 @@ const Container: React.FC<ContainerProps> = ({ children }) => {
       marginRight="20px"
       overflowY="auto"
       css={{
-        '&::-webkit-scrollbar': {
-            width: '8px',
+        "&::-webkit-scrollbar": {
+          width: "8px",
         },
-        '&::-webkit-scrollbar-thumb': {
-            background: '#e3f2f9',
-            borderRadius: '20px',
+        "&::-webkit-scrollbar-thumb": {
+          background: "#e3f2f9",
+          borderRadius: "20px",
         },
-        '&::-webkit-scrollbar-track': {
-            background: '#02001F',
-            borderRadius: '20px',
+        "&::-webkit-scrollbar-track": {
+          background: "#02001F",
+          borderRadius: "20px",
         },
-    }}
+      }}
     >
       {children}
     </Box>
