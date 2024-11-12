@@ -4,11 +4,14 @@ import axios from "axios";
 import { Box, Text, Separator } from "@chakra-ui/react";
 import CommunityButton from "@/components/community/community-button";
 import Reviewcontainer from "@/components/community/review-container";
+import CrewHeader from "@/components/community/crew-header";
 import Header from "@/components/community/header";
+import OtherHeader from "@/components/community/otherHeader";
 import Container from "@/components/community/container";
 import paths from "@/configs/paths";
 import Modal from "@/components/common/Modal";
 import useCommunityDetail from "@/hooks/community/useCommunityDetail";
+import useHeaderStore from "@/stores/headerStore";
 
 const CommunityDetailView: React.FC = () => {
   const { 
@@ -27,6 +30,7 @@ const CommunityDetailView: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [myLikedNum, setMyLikeNum] = useState<number>(0);
+  const { openUserHeader,  openOtherUserHeader, otherUserNickname, otherUserProfileImage} = useHeaderStore(state => state);
 
   const { id } = useParams<{ id: string }>();
   const API_URL = import.meta.env.VITE_API_URL;
@@ -42,8 +46,12 @@ const CommunityDetailView: React.FC = () => {
       console.error("Failed to parse auth-storage:", error);
     }
   }
-  
+ 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('크루 헤더', openUserHeader)
+  }, [openUserHeader])
   
   useEffect(() => {
     const getArticleDetail = async () => {
@@ -94,7 +102,7 @@ const CommunityDetailView: React.FC = () => {
 
   return (
     <Box>
-      <Header />
+      {openUserHeader ? openOtherUserHeader ? <OtherHeader  otherUserNickname={otherUserNickname} otherUserProfileImage={otherUserProfileImage}/> : <Header /> : <CrewHeader />}
       <Container>
         <Box>
           <Box margin="30px 30px">
