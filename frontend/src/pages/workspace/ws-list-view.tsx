@@ -1,4 +1,4 @@
-import { Box, Stack, Flex } from "@chakra-ui/react";
+import { Box, Stack, Flex, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Search from "@/sections/workspace/search";
