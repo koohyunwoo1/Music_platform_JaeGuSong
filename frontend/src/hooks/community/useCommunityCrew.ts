@@ -1,9 +1,10 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import paths from "@/configs/paths";
 import axios from "axios";
 import { MakeCrewFormData } from "@/configs/community/makeCrew";
 import useCrewSeqStore from '@/stores/crewSeqStore';
+import useHeaderStore from "@/stores/headerStore";
 
 
 const UseCommunityCrew = () => {
@@ -22,6 +23,7 @@ const UseCommunityCrew = () => {
     const [ myCrewsSeq, setMyCrewsSeq ] = useState<any[]>([]);
     const [ myName, setMyName ] = useState<string>('');
     const getCrewSeq = useCrewSeqStore((state) => state.getCrewSeq);
+    const { openUserHeader } = useHeaderStore(state => state);
 
     const [ makeCrewFormData, setMakeCrewFormData ] = useState<MakeCrewFormData>({
         birth: new Date().toISOString().split('T')[0],
@@ -36,6 +38,8 @@ const UseCommunityCrew = () => {
 
     const navigate = useNavigate();
     const { id } = useParams<{id: string}>();
+    const location = useLocation();
+    const hasDetailWord = location.pathname.includes('detail');
 
     const goCrewFollow = async () => {
         setopenCrewFollowModal((prev) => !prev);
@@ -226,7 +230,11 @@ const UseCommunityCrew = () => {
         if ( id === undefined ) {
             crewSeq = getCrewSeq;
         } else {
+            if (hasDetailWord) {
+                crewSeq = getCrewSeq
+            } else {
             crewSeq =  parseInt(id)
+            }    
         }
         try {
           const response = await axios.get(
@@ -245,8 +253,6 @@ const UseCommunityCrew = () => {
           } catch(error) {
             console.warn(error)
           }
-
-
     }
 
     const preGetCrewInfo = async () => {
