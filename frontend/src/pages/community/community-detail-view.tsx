@@ -51,6 +51,10 @@ const CommunityDetailView: React.FC = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log('크루 헤더', openUserHeader)
+  }, [openUserHeader])
+
   const getArticleDetail = async () => {
     const storedToken = localStorage.getItem("jwtToken");
     try {
