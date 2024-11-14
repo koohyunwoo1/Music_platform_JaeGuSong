@@ -1,8 +1,16 @@
 import axios from "axios";
-import { Box, Stack, Text, Flex, Card, Button } from "@chakra-ui/react";
+import { Box, Stack, Text, Flex, Card, Button, IconButton } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import ToggleOptions from "./toggleOptions";
+import {
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "../ui/checkbox";
 import Play from "@/sections/workspace/play";
 import Waveform from "./waveform"
@@ -48,6 +56,22 @@ export default function Session({
   const removeSession = useWsDetailStore((state) => state.removeSession);
   const toggleSession = useWsDetailStore((state) => state.toggleSession);
   const API_URL = import.meta.env.VITE_API_URL;
+
+  // toggleOptions
+  const sessionTypeRef = useRef(type);
+  const [, forceUpdate] = useState(0); // 이 상태는 재렌더링을 위한 용도로만 사용합니다.
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const handleSelectSession = (value) => {
+    sessionTypeRef.current = value;
+    forceUpdate((prev) => prev + 1); // 강제로 재렌더링
+    setIsPopoverOpen(false); // 선택 후 Popover 닫기
+  };
+
+  const handleResetSession = () => {
+    sessionTypeRef.current = type;
+    forceUpdate((prev) => prev + 1); // 강제로 재렌더링
+  };
 
   useEffect(() => {
     if (!waveformRef.current) return;
@@ -230,12 +254,58 @@ export default function Session({
   return (
     <Card.Root bg="transparent" color="white" padding="2" borderColor="grey">
       <Flex gap={3}>
-        <Checkbox onChange={() => toggleSession(sessionId)} />
-        <Stack justifyContent="center">
-          <ToggleOptions />
-          <Text fontFamily="MiceGothic" fontSize={11}>
-            세션 타입 : {type}
-          </Text>
+        <Checkbox colorPalette="purple" onChange={() => toggleSession(sessionId)} />
+        <Stack width="150px" justifyContent="center">
+          <Stack width="150px" justifyContent="center" alignItems="start">
+            <Text fontFamily="MiceGothic" fontSize={11}>
+              세션 타입 : {sessionTypeRef.current || "세션을 선택해주세요"}
+            </Text>
+            {sessionTypeRef.current !== type ? (
+              <Button
+                width="50px"
+                height="20px"
+                fontSize="10px"
+                onClick={handleResetSession}
+              >
+                Reset
+              </Button>
+            ) : (
+              <PopoverRoot>
+                <PopoverTrigger asChild>
+                  <Button
+                    width="50px"
+                    height="20px"
+                    fontSize="10px"
+                  >
+                    Change
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverBody>
+                    <PopoverTitle
+                      fontWeight="medium"
+                      fontSize={13}
+                      marginBottom={3}
+                    >
+                      세션 정보 변경
+                    </PopoverTitle>
+                    <ToggleOptions onSelectSession={handleSelectSession} />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      fontFamily="MiceGothic"
+                      fontSize={11}
+                      mt={4}
+                      onClick={() => console.log('변경하기')}
+                    >
+                      변경하기
+                    </Button>
+                  </PopoverBody>
+                </PopoverContent>
+              </PopoverRoot>
+            )}
+          </Stack>
         </Stack>
 
         <Stack width="100%" height="130px" justify="center" pt="10px">
