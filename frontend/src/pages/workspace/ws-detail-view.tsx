@@ -79,9 +79,6 @@ export default function WsDetailView() {
     <Stack padding={4} color="white" borderRadius="md" height="100%">
       <WsHeader wsDetails={wsDetails} workspaceSeq={workspaceSeqNumber} />
 
-      <Image src={wsDetails.thumbnail} />
-      {/* <Image src="https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/"/> */}
-
       <Box flex="1" overflowY="auto">
         <SessionBox
           workspaceSeq={workspaceSeqNumber}
