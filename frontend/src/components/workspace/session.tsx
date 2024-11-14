@@ -3,9 +3,9 @@ import { Box, Stack, Text, Flex, Card, Button } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import ToggleOptions from "./toggleOptions";
-// import CursorMarker from "./cursorMarker";
 import { Checkbox } from "../ui/checkbox";
 import Play from "@/sections/workspace/play";
+import Waveform from "./waveform"
 import { toaster } from "@/components/ui/toaster";
 import { useWsDetailStore } from "@/stores/wsDetailStore";
 import { Rnd } from "react-rnd";
@@ -33,8 +33,6 @@ export default function Session({
   const wavesurferRef = useRef<WaveSurfer | null>(null);
 
   // startPoint, endPoint
-  const [startPoint, setStartPoint] = useState(initialStartPoint);
-  const [endPoint, setEndPoint] = useState(initialEndPoint);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -57,12 +55,12 @@ export default function Session({
     wavesurferRef.current = WaveSurfer.create({
       container: waveformRef.current,
       waveColor: "#FFFFFF",
-      progressColor: "lightgrey",
-      cursorColor: "green",
+      progressColor: "grey",
+      cursorColor: "purple",
       barWidth: 1,
       barHeight: 0.8,
       barGap: 0.5,
-      cursorWidth: 2,
+      cursorWidth: 2.5,
       height: 100,
     });
 
@@ -72,6 +70,7 @@ export default function Session({
     wavesurferRef.current.on("ready", () => {
       const audioDuration = wavesurferRef.current?.getDuration() || 0;
       setDuration(audioDuration); // duration 에 오디오 길이 상태 업데이트
+      wavesurferRef.current?.setTime(startPointRef.current);
       // setCursor2(endPoint || audioDuration); // 종료 커서를 endPoint 또는 오디오 길이로 설정
       if (endPointRef.current > audioDuration) {
         endPointRef.current = audioDuration;
@@ -83,18 +82,9 @@ export default function Session({
       const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
       console.log("재생 중 | 현재 currentTime :", currentTime);
 
-      // if (currentTime > endPoint) {
-      //   wavesurferRef.current?.stop();
-      //   wavesurferRef.current?.setTime(startPoint);
-      //   setCurrentTime(startPoint);
-      // } else {
-      //   setCurrentTime(currentTime); // currentTime 에 새로 찾은 위치 상태 업데이트
-      // }
-      // if (currentTime > endPointRef.current) {
-      if (currentTime > endPoint) {
+      if (currentTime > endPointRef.current) {
         console.log("종료 지점 지났당!");
         console.log("endPointRef.current :", endPointRef.current);
-        console.log("endPoint :", endPoint);
         wavesurferRef.current?.pause();
         wavesurferRef.current?.setTime(startPointRef.current);
         setCurrentTime(startPointRef.current);
@@ -150,10 +140,12 @@ export default function Session({
   };
 
   const handleStop = () => {
+    console.log('안녕, 난 handleStop')
     if (wavesurferRef.current) {
       wavesurferRef.current.stop();
+      wavesurferRef.current?.setTime(startPointRef.current);
       setIsPlaying(false);
-      setCurrentTime(0);
+      setCurrentTime(startPointRef.current);
     }
   };
 
@@ -183,7 +175,6 @@ export default function Session({
         type: "success",
       });
 
-      // onDelete(sessionId); // 삭제 후 부모 컴포넌트의 상태 업데이트
       onSessionDelete(Number(sessionId)); // 부모 컴포넌트에 삭제를 알림
     } catch (error) {
       console.error("Error adding session:", error);
@@ -194,54 +185,44 @@ export default function Session({
     }
   };
 
-  const handleStartCursorDrag = (e, d) => {
-    console.log("안녕 난 handleStartCursorDrag");
-    if (waveformRef.current) {
-      // 유효성 검사 추가
-      const newCursorTime = (d.x / waveformRef.current.clientWidth) * duration;
-      setCursor1(newCursorTime);
-    }
-  };
-
-  const handleEndCursorDrag = (e, d) => {
-    if (waveformRef.current) {
-      // 유효성 검사 추가
-      const newCursorTime = (d.x / waveformRef.current.clientWidth) * duration;
-      setCursor2(newCursorTime);
-    }
-  };
-
   const handleStartCursorDragStop = (e, d) => {
     console.log("안녕 난 handleStartCursorDragStop");
 
     if (waveformRef.current) {
+      const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
       // 새로운 startPoint 계산
       const newStartPoint = (d.x / waveformRef.current.clientWidth) * duration;
-      setCursor1(newStartPoint); // 커서 위치 갱신
-      setStartPoint(newStartPoint); // startPoint 상태 업데이트
-      console.log("newStartPoint :", newStartPoint);
 
-      // 현재 재생 위치가 새 startPoint보다 이전이라면 위치를 맞춥니다.
-      if (currentTime < newStartPoint) {
-        wavesurferRef.current?.setTime(newStartPoint);
+      if (newStartPoint <= endPointRef.current) {
+        setCursor1(newStartPoint); // 커서 위치 갱신
+        startPointRef.current = newStartPoint
+        // 현재 재생 위치가 새 startPoint보다 이전이라면 위치를 맞춥니다.
+        if (currentTime < newStartPoint) {
+          wavesurferRef.current?.setTime(newStartPoint);
+        }
       }
+      console.log("newStartPoint :", newStartPoint);
     }
   };
 
   const handleEndCursorDragStop = (e, d) => {
     if (waveformRef.current) {
+      const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
       // 새로운 endPoint 계산
       const newEndPoint = (d.x / waveformRef.current.clientWidth) * duration;
-      setCursor2(newEndPoint); // 커서 위치 갱신
-      setEndPoint(newEndPoint); // endPoint 상태 업데이트
+
+      if (newEndPoint >= startPointRef.current) {
+        setCursor2(newEndPoint); // 커서 위치 갱신
+        endPointRef.current = newEndPoint
+      }
       console.log("newEndPoint :", newEndPoint);
 
       // 현재 재생 위치가 새 endPoint보다 이후라면 재생을 멈추고 위치를 startPoint로 설정합니다.
       if (currentTime > newEndPoint) {
         setIsPlaying(false);
-        setCurrentTime(startPoint);
+        setCurrentTime(startPointRef.current);
         wavesurferRef.current?.pause();
-        wavesurferRef.current?.setTime(startPoint);
+        wavesurferRef.current?.setTime(startPointRef.current);
       }
     }
   };
@@ -257,15 +238,13 @@ export default function Session({
           </Text>
         </Stack>
 
-        <Box width="100%">
+        <Stack width="100%" height="130px" justify="center" pt="10px">
           <Box
             ref={waveformRef}
             width="100%"
             height="100px"
             position="relative"
           >
-            {/* <CursorMarker position={cursor1} color="green" duration={duration} />
-            <CursorMarker position={cursor2} color="red" duration={duration} /> */}
 
             {/* Draggable startPoint 커서 */}
             <Rnd
@@ -278,11 +257,8 @@ export default function Session({
                     : 0,
                 y: 0,
               }}
-              onDrag={handleStartCursorDrag}
               onDragStop={handleStartCursorDragStop}
-              // style={{ backgroundColor: "green" }}
               style={{ backgroundColor: "transparent", cursor: "pointer" }} // Rnd 자체 배경 제거
-              // />
             >
               {/* 커서 모양을 위한 Wrapper */}
               <div
@@ -325,11 +301,8 @@ export default function Session({
                     : 0,
                 y: 0,
               }}
-              onDrag={handleEndCursorDrag}
               onDragStop={handleEndCursorDragStop}
-              // style={{ backgroundColor: "red" }}
               style={{ backgroundColor: "transparent", cursor: "pointer" }} // Rnd 자체 배경 제거
-              // />
             >
               {/* 커서 모양을 위한 Wrapper */}
               <div
@@ -366,7 +339,7 @@ export default function Session({
             <Text fontSize={10}>{formatTime(currentTime)}</Text>
             <Text fontSize={10}>{formatTime(duration)}</Text>
           </Flex>
-        </Box>
+        </Stack>
 
         <Play
           isPlaying={isPlaying}
@@ -375,7 +348,6 @@ export default function Session({
           mode="individual"
         />
 
-        {/* <Button onClick={handleDeleteSession}>삭제</Button> */}
         <Button onClick={handleDeleteSession}>삭제</Button>
       </Flex>
     </Card.Root>
