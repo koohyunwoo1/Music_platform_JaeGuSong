@@ -41,6 +41,10 @@ export default function Session({
   const [cursor1, setCursor1] = useState(initialStartPoint); // 시작 커서 위치
   const [cursor2, setCursor2] = useState(initialEndPoint); // 종료 커서 위치
 
+  // startPoint, endPoint - 재렌더링 방지
+  const startPointRef = useRef(initialStartPoint);
+  const endPointRef = useRef(initialEndPoint);
+
   // 상태 관리 및 store 관련
   const addSession = useWsDetailStore((state) => state.addSession);
   const removeSession = useWsDetailStore((state) => state.removeSession);
@@ -68,7 +72,10 @@ export default function Session({
     wavesurferRef.current.on("ready", () => {
       const audioDuration = wavesurferRef.current?.getDuration() || 0;
       setDuration(audioDuration); // duration 에 오디오 길이 상태 업데이트
-      setCursor2(endPoint || audioDuration); // 종료 커서를 endPoint 또는 오디오 길이로 설정
+      // setCursor2(endPoint || audioDuration); // 종료 커서를 endPoint 또는 오디오 길이로 설정
+      if (endPointRef.current > audioDuration) {
+        endPointRef.current = audioDuration;
+      }
     });
 
     // audioprocess | An alias of timeupdate but only when the audio is playing
@@ -76,25 +83,39 @@ export default function Session({
       const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
       console.log("재생 중 | 현재 currentTime :", currentTime);
 
+      // if (currentTime > endPoint) {
+      //   wavesurferRef.current?.stop();
+      //   wavesurferRef.current?.setTime(startPoint);
+      //   setCurrentTime(startPoint);
+      // } else {
+      //   setCurrentTime(currentTime); // currentTime 에 새로 찾은 위치 상태 업데이트
+      // }
+      // if (currentTime > endPointRef.current) {
       if (currentTime > endPoint) {
-        wavesurferRef.current?.stop();
-        wavesurferRef.current?.setTime(startPoint);
-        setCurrentTime(startPoint);
-      } else {
-        setCurrentTime(currentTime); // currentTime 에 새로 찾은 위치 상태 업데이트
+        console.log("종료 지점 지났당!");
+        console.log("endPointRef.current :", endPointRef.current);
+        console.log("endPoint :", endPoint);
+        wavesurferRef.current?.pause();
+        wavesurferRef.current?.setTime(startPointRef.current);
+        setCurrentTime(startPointRef.current);
+      } else if (currentTime < startPointRef.current) {
+        wavesurferRef.current?.setTime(startPointRef.current);
+        setCurrentTime(startPointRef.current);
       }
     });
 
     wavesurferRef.current.on("interaction", () => {
-      const newTime = wavesurferRef.current?.getCurrentTime() || 0;
-      console.log("interaction 발생! newTime :", newTime);
+      const newCurrentTime = wavesurferRef.current?.getCurrentTime() || 0;
+      console.log("interaction 발생! newCurrentTime :", newCurrentTime);
 
-      if (newTime < startPoint || newTime > endPoint) {
-        wavesurferRef.current?.setTime(startPoint);
-        setCurrentTime(startPoint);
+      if (
+        newCurrentTime < startPointRef.current ||
+        newCurrentTime > endPointRef.current
+      ) {
+        wavesurferRef.current?.setTime(startPointRef.current);
+        setCurrentTime(startPointRef.current);
       } else {
-        wavesurferRef.current?.setTime(newTime); // wavesurferRef.current 에 새로 찾은 위치 상태 업데이트
-        setCurrentTime(newTime); // currentTime 에 새로 찾은 위치 상태 업데이트
+        setCurrentTime(newCurrentTime); // currentTime 에 새로 찾은 위치 상태 업데이트
       }
     });
 
@@ -114,7 +135,7 @@ export default function Session({
         updateCurrentTimeOnClick
       );
     };
-  }, [sessionId, addSession, removeSession, url, startPoint, endPoint]);
+  }, [sessionId, addSession, removeSession, url]);
 
   const handlePlayPause = () => {
     if (wavesurferRef.current) {
@@ -174,6 +195,7 @@ export default function Session({
   };
 
   const handleStartCursorDrag = (e, d) => {
+    console.log("안녕 난 handleStartCursorDrag");
     if (waveformRef.current) {
       // 유효성 검사 추가
       const newCursorTime = (d.x / waveformRef.current.clientWidth) * duration;
@@ -190,6 +212,8 @@ export default function Session({
   };
 
   const handleStartCursorDragStop = (e, d) => {
+    console.log("안녕 난 handleStartCursorDragStop");
+
     if (waveformRef.current) {
       // 새로운 startPoint 계산
       const newStartPoint = (d.x / waveformRef.current.clientWidth) * duration;
