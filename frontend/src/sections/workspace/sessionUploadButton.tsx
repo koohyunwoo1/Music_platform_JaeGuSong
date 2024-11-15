@@ -88,11 +88,6 @@ export default function SessionUploadButton({
     <PopoverRoot>
       <PopoverTrigger asChild>
         <Button
-          // size="sm"
-          // variant="outline"
-          // fontFamily="MiceGothic"
-          // fontSize={13}
-          // color="white"
           bg="blackAlpha.900" // 검은 배경
           color="white" // 텍스트 색상
           border="2px solid" // 테두리 두께
@@ -103,7 +98,7 @@ export default function SessionUploadButton({
           paddingX="4"
           paddingY="2"
           width="110px"
-          height="42px"
+          height="46px"
           fontWeight="bold"
         >
           세션 추가
