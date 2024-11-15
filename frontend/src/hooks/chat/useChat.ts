@@ -53,6 +53,7 @@ export const useChat = ({
           "Content-Type": "application/json",
         },
       });
+      console.log(response);
       setRoomSeq(response.data);
       setIsChatModalOpen(true);
     } catch (error) {
@@ -146,7 +147,6 @@ export const useChat = ({
           },
         }
       );
-      console.log(response);
       if (response.status === 200) {
         console.log("채팅방 나가기 성공:", response);
       }
