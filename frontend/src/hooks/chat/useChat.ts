@@ -28,6 +28,7 @@ export const useChat = ({
 }: UseChatProps) => {
   const [roomSeq, setRoomSeq] = useState<number | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  console.log(chatMessages);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [chatRoomUsers, setChatRoomUsers] = useState<ChatRoomUser[]>([]);
@@ -89,6 +90,7 @@ export const useChat = ({
 
     eventSource.onmessage = (event) => {
       const user: ChatRoomUser = JSON.parse(event.data);
+      console.log(user);
       if (user.artistSeq !== String(userSeq)) {
         setChatRoomUsers((prevUsers) => {
           if (
