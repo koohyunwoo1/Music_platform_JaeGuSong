@@ -28,6 +28,8 @@ export default function SessionMain({
 
   const [cursor1, setCursor1] = useState(initialStartPoint); // 시작 커서 위치
   const [cursor2, setCursor2] = useState(initialEndPoint); // 종료 커서 위치
+  const [cursor3, setCursor3] = useState(globalStartPoint); // 종료 커서 위치
+  const [cursor4, setCursor4] = useState(globalEndPoint); // 종료 커서 위치
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [dragOffset, setDragOffset] = useState(0); // 드래그 오프셋
@@ -46,7 +48,10 @@ export default function SessionMain({
   const updateStartPoint = useWsDetailStore((state) => state.updateStartPoint);
   const updateEndPoint = useWsDetailStore((state) => state.updateEndPoint);
   const updateDragOffset = useWsDetailStore((state) => state.updateDragOffset);
-  const recalculateGlobalPoints = useWsDetailStore((state) => state.recalculateGlobalPoints);
+  const recalculateGlobalPoints = useWsDetailStore(
+    (state) => state.recalculateGlobalPoints
+  );
+  const offset = useWsDetailStore((state) => state.offsetArray[sessionId]);
 
   // startPoint, endPoint - 재렌더링 방지
   const startPointRef = useRef(
@@ -56,10 +61,12 @@ export default function SessionMain({
     storeEndPoint !== 0 ? storeEndPoint : initialEndPoint
   );
 
-  const waveformWidth = (globalDuration !== 0) && (duration !== 0) ? (duration / globalDuration) * 100 : 100
+  const waveformWidth =
+    globalDuration !== 0 && duration !== 0
+      ? (duration / globalDuration) * 100
+      : 100;
 
-  const { handleStartCursorDragStop, handleEndCursorDragStop } =
-  useSession({
+  const { handleStartCursorDragStop, handleEndCursorDragStop } = useSession({
     waveformRef,
     wavesurferRef,
     duration,
@@ -137,7 +144,7 @@ export default function SessionMain({
       // currentTime 유효성 검사 및 업데이트
       if (wavesurferRef.current) {
         const currentTime = wavesurferRef.current.getCurrentTime() || 0;
-  
+
         if (currentTime < storeStartPoint) {
           wavesurferRef.current.setTime(storeStartPoint);
           setCurrentTime(storeStartPoint); // currentTime을 startPoint로 업데이트
@@ -145,14 +152,14 @@ export default function SessionMain({
       }
     }
   }, [storeStartPoint]);
-  
+
   useEffect(() => {
     if (storeEndPoint !== undefined) {
       setCursor2(storeEndPoint); // Store 값 변경 시 cursor2 업데이트
       // currentTime 유효성 검사 및 업데이트
       if (wavesurferRef.current) {
         const currentTime = wavesurferRef.current.getCurrentTime() || 0;
-  
+
         if (currentTime > storeEndPoint) {
           wavesurferRef.current.setTime(storeEndPoint);
           setCurrentTime(storeEndPoint); // currentTime을 endPoint로 업데이트
@@ -160,8 +167,7 @@ export default function SessionMain({
       }
     }
   }, [storeEndPoint]);
-  
-  
+
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -176,32 +182,34 @@ export default function SessionMain({
     const offset = (data.deltaX / waveformRef.current.clientWidth) * duration;
     setDragOffset(offset); // 오프셋 업데이트
   };
-  
+
   const handleDragStop = (e: MouseEvent, data: { x: number }) => {
     if (!waveformRef.current) return;
-  
+
     const offset = (data.x / waveformRef.current.clientWidth) * duration;
-  
+
     // Store에 offset 저장
     useWsDetailStore.getState().setOffset(sessionId, offset);
 
     // 플레이 포인트 재계산
     useWsDetailStore.getState().recalculateGlobalPoints();
-
-    console.log('useWsDetailStore.getState().dragOffset :', useWsDetailStore.getState().offsetArray)
-
-    console.log('useWsDetailStore.getState().globalStartPoint :', useWsDetailStore.getState().globalStartPoint)
-    console.log('useWsDetailStore.getState().globalEndPoint :', useWsDetailStore.getState().globalEndPoint)
-    console.log('useWsDetailStore.getState().playPoints :', useWsDetailStore.getState().playPoints)
-
   };
-  
-    
+
+  useEffect(() => {
+    if (globalStartPoint !== undefined) {
+      setCursor3(globalStartPoint); // Store 값 변경 시 cursor2 업데이트
+    }
+    console.log("Updated globalStartPoint:", globalStartPoint);
+  }, [globalStartPoint]);
+
+  useEffect(() => {
+    if (globalEndPoint !== undefined) {
+      setCursor4(globalEndPoint); // Store 값 변경 시 cursor2 업데이트
+    }
+  }, [globalEndPoint]);
+
   return (
-    <Flex
-      flex={1}
-      align="center"
-    >
+    <Flex flex={1} align="center">
       <Stack
         width="100%"
         height="110px"
@@ -209,6 +217,35 @@ export default function SessionMain({
         position="relative"
         mr="12px"
       >
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          width="100%"
+          height="100%"
+          pointerEvents="none" // 드래그 이벤트가 여기에 영향을 주지 않도록 설정
+        >
+          <SessionCursor
+            positionX={
+              waveformRef.current && globalDuration > 0
+                ? ((cursor3 - offset) / globalDuration) *
+                  waveformRef.current.clientWidth
+                : 0
+            }
+            color="grey"
+            isDraggable={false}
+          />
+          <SessionCursor
+            positionX={
+              waveformRef.current && globalDuration > 0
+                ? ((cursor4 - offset) / globalDuration) *
+                  waveformRef.current.clientWidth
+                : 0
+            }
+            color="grey"
+            isDraggable={false}
+          />
+        </Box>
         <Rnd
           bounds="parent"
           enableResizing={false}
@@ -226,7 +263,7 @@ export default function SessionMain({
         >
           <Stack
             width="100%"
-            onClick={() => console.log('둘째 Stack', waveformWidth)}
+            onClick={() => console.log("둘째 Stack", waveformWidth)}
           >
             <Box
               ref={waveformRef}
@@ -254,24 +291,6 @@ export default function SessionMain({
                 onDragStop={handleEndCursorDragStop}
                 isDraggable={true}
               />
-              <SessionCursor
-                positionX={
-                  waveformRef.current && duration > 0
-                    ? (globalStartPoint / duration) * waveformRef.current.clientWidth
-                    : 0
-                }
-                color="grey"
-                isDraggable={false}
-              />
-              <SessionCursor
-                positionX={
-                  waveformRef.current && duration > 0
-                    ? (globalEndPoint / duration) * waveformRef.current.clientWidth
-                    : 0
-                }
-                color="grey"
-                isDraggable={false}
-              />
             </Box>
 
             <Flex justifyContent="space-between" width="100%">
@@ -282,5 +301,5 @@ export default function SessionMain({
         </Rnd>
       </Stack>
     </Flex>
-  )
+  );
 }

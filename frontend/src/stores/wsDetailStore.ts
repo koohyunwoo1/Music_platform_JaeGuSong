@@ -32,7 +32,7 @@ interface wsDetailStore {
   isGlobalPlaying: boolean;
   checkedSessions: string[];
   shouldReloadSessionBox: boolean;
-  dragOffset: 0, // 드래그 오프셋 상태 추가
+  dragOffset: 0; // 드래그 오프셋 상태 추가
 
   setSessions: (newSessions) => void;
   addSession: (sessionId: string, player: WaveSurfer) => void;
@@ -256,7 +256,7 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
       const existingOffsetIndex = state.offsetArray.findIndex(
         (item) => item.sessionId === sessionId
       );
-      
+
       let newOffsetArray;
       if (existingOffsetIndex !== -1) {
         // 이미 존재하는 sessionId인 경우 값 업데이트
@@ -270,29 +270,30 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
       return { offsetArray: newOffsetArray };
     });
   },
-  
+
   getOffset: (sessionId) => {
     const offsetData = get().offsetArray.find(
       (item) => item.sessionId === sessionId
     );
 
-    console.log('여기는 getOffset')
-    console.log('offsetData :', offsetData)
+    console.log("여기는 getOffset");
+    console.log("offsetData :", offsetData);
     return offsetData ? offsetData.offset : 0; // 없으면 0 반환
   },
 
   getPlayPoints: () => {
     console.log("여기는 getPlayPoints");
-  
+
     const { sessions, getOffset } = get();
-  
+
     // 모든 세션의 playStartPoint와 playEndPoint 계산
     return Object.keys(sessions).map((id) => {
       const session = sessions[id];
-      if (!session) return { sessionId: id, playStartPoint: 0, playEndPoint: 0 };
-  
+      if (!session)
+        return { sessionId: id, playStartPoint: 0, playEndPoint: 0 };
+
       const offset = getOffset(id) || 0; // 해당 세션의 offset 조회
-  
+
       return {
         sessionId: id,
         playStartPoint: session.startPoint + offset,
@@ -300,11 +301,10 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
       };
     });
   },
-  
 
   recalculateGlobalPoints: () => {
     const { checkedSessions, getPlayPoints } = get();
-  
+
     // playPoints 계산
     const playPoints = getPlayPoints();
 
@@ -314,8 +314,12 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
     );
 
     // 필터링된 playPoints를 기준으로 글로벌 시작/종료점 계산
-    const globalStart = Math.min(...filteredPlayPoints.map((p) => p.playStartPoint));
-    const globalEnd = Math.max(...filteredPlayPoints.map((p) => p.playEndPoint));
+    const globalStart = Math.min(
+      ...filteredPlayPoints.map((p) => p.playStartPoint)
+    );
+    const globalEnd = Math.max(
+      ...filteredPlayPoints.map((p) => p.playEndPoint)
+    );
 
     // 상태 업데이트
     set({
@@ -323,113 +327,120 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
       globalStartPoint: globalStart !== Infinity ? globalStart : 0,
       globalEndPoint: globalEnd !== -Infinity ? globalEnd : 0,
     });
-  
+
     return {
       playPoints,
       globalStartPoint: globalStart !== Infinity ? globalStart : 0,
       globalEndPoint: globalEnd !== -Infinity ? globalEnd : 0,
     };
   },
- 
+
   playAll: () => {
     const {
       sessions,
       checkedSessions,
-      getPlayPoints,
       recalculateGlobalPoints,
+      offsetArray,
+      isGlobalPlaying,
     } = get();
-  
+
     // 글로벌 포인트 재계산
     const { globalStartPoint, globalEndPoint } = recalculateGlobalPoints();
-  
-    const playPoints = getPlayPoints(); // 재계산된 playPoints 가져오기
-  
+
     checkedSessions.forEach((sessionId) => {
       const session = sessions[sessionId];
-      const playPoint = playPoints.find((p) => p.sessionId === sessionId);
-  
-      if (!session || !session.player || !playPoint) return;
-  
-      const { playStartPoint, playEndPoint } = playPoint;
-  
+      const offsetData = offsetArray.find((p) => p.sessionId === sessionId);
+      const offset = offsetData ? offsetData.offset : 0;
+
+      if (!session || !session.player) return;
+
+      const adjustedStartTime = globalStartPoint - offset;
+
       // 기존 "audioprocess" 이벤트 제거
       session.player.un("audioprocess");
-  
-      session.player.on("audioprocess", () => {
-        let currentTime = session.player?.getCurrentTime() || 0;
-  
-        // `offset`을 고려하여 `currentTime` 보정
-        const offset = playStartPoint - session.startPoint;
-        currentTime += offset;
 
-        session.player.setTime(globalStartPoint - offset);
-  
-        // 재생 시작 전 위치 보정
-        if (currentTime < playStartPoint) {
-          session.player.setTime(globalStartPoint - offset);
-        }
-  
-        // 재생 종료 조건
-        if (currentTime > globalEndPoint) {
-          session.player.stop();
-          session.player.setTime(globalStartPoint - offset);
-          set({ isGlobalPlaying: false });
-        }
-  
+      session.player.on("audioprocess", () => {
+        const currentTime = session.player?.getCurrentTime() || 0;
+
         // 볼륨 조절
-        session.player.setVolume(
-          currentTime >= playStartPoint && currentTime <= playEndPoint ? 1 : 0
-        );
+        if (
+          currentTime >= session.startPoint &&
+          currentTime <= session.endPoint
+        ) {
+          session.player.setVolume(1);
+        } else {
+          session.player.setVolume(0);
+        }
+
+        // 재생 종료 조건
+        if (currentTime > globalEndPoint - offset) {
+          session.player.stop();
+          session.player.setTime(globalStartPoint);
+          set({ isGlobalPlaying: false });
+          console.log(
+            "isGlobalPlaying 정지 상태로 변환 완료.",
+            isGlobalPlaying
+          );
+        }
       });
-  
-      // session.player.setTime(globalStartPoint);
-      session.player.play();
+
+      // 재생 설정
+      if (offset === 0) {
+        // Offset이 없을 경우, 글로벌 시작 시간으로 재생
+        session.player.setTime(globalStartPoint);
+        session.player.play();
+      } else {
+        // Offset이 있을 경우, 동기화를 위해 딜레이 추가
+        if (adjustedStartTime >= 0) {
+          // Adjusted Start Time이 음수가 아니면 일반적인 딜레이 처리
+          session.player.setTime(adjustedStartTime);
+          session.player.play();
+        } else {
+          // Adjusted Start Time이 음수일 경우, 0초부터 시작
+          session.player.setTime(0);
+          setTimeout(() => {
+            session.player.play();
+          }, Math.abs(adjustedStartTime) * 1000); // 음수만큼의 시간 보정
+        }
+      }
     });
-  
+
     set({ isGlobalPlaying: true });
   },
-  
-  
+
   pauseAll: () => {
-    const { recalculateGlobalPoints, sessions, checkedSessions } = get();
-  
-    // 글로벌 포인트 재계산
-    const { globalStartPoint, globalEndPoint } = recalculateGlobalPoints();  
+    const { sessions, checkedSessions } = get();
 
     checkedSessions.forEach((sessionId) => {
       const session = sessions[sessionId];
-      session?.player?.pause();
+
+      if (session?.player) {
+        session.player.pause(); // 재생 중지 (일시정지)
+      }
     });
-  
+
+    // 전역 재생 상태를 false로 업데이트
     set({ isGlobalPlaying: false });
   },
-  
-  stopAll: () => {
-    const {
-      recalculateGlobalPoints,
-      sessions,
-      checkedSessions,
-      getPlayPoints,
-    } = get();
-  
-    // 글로벌 포인트 재계산
-    const { globalStartPoint, globalEndPoint } = recalculateGlobalPoints();  
 
-    const playPoints = getPlayPoints(); // 재계산된 playPoints 가져오기
-  
+  stopAll: () => {
+    const { sessions, checkedSessions, recalculateGlobalPoints } = get();
+
+    // 글로벌 포인트 재계산
+    const { globalStartPoint } = recalculateGlobalPoints();
+
     checkedSessions.forEach((sessionId) => {
       const session = sessions[sessionId];
-      const playPoint = playPoints.find((p) => p.sessionId === sessionId);
-  
-      if (!session || !session.player || !playPoint) return;
-    
-      session.player.stop();
-      session.player.setTime(globalStartPoint);
+
+      if (session?.player) {
+        session.player.stop(); // 완전한 정지
+        session.player.setTime(globalStartPoint); // 글로벌 시작점으로 위치 초기화
+      }
     });
-  
+
+    // 전역 재생 상태 및 현재 시간을 초기화
     set({ isGlobalPlaying: false, globalCurrentTime: globalStartPoint });
   },
-  
 
   resetGlobalPlayback: () =>
     set(() => ({
@@ -480,8 +491,6 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
   playSession: (sessionId: string) => {
     const session = get().sessions[sessionId];
     if (session && session.player) {
-
-
       // 기존 "audioprocess" 이벤트 제거
       session.player.un("audioprocess");
 
@@ -493,11 +502,11 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
           session.player.setTime(session.startPoint);
           set((state) => ({
             sessions: {
-                ...state.sessions,
-                [sessionId]: {
-                    ...state.sessions[sessionId],
-                    isPlaying: false,
-                },
+              ...state.sessions,
+              [sessionId]: {
+                ...state.sessions[sessionId],
+                isPlaying: false,
+              },
             },
           }));
         }
@@ -537,7 +546,7 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
     const session = get().sessions[sessionId];
     if (session && session.player) {
       session.player.stop();
-      session.player.setTime(session.startPoint)
+      session.player.setTime(session.startPoint);
       set((state) => ({
         sessions: {
           ...state.sessions,
@@ -560,7 +569,7 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
         },
       },
     })),
-    
+
   updateEndPoint: (sessionId: string, newEndPoint: number) =>
     set((state) => ({
       sessions: {
@@ -571,6 +580,4 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
         },
       },
     })),
-
-
 }));
