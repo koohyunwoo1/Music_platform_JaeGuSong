@@ -512,7 +512,7 @@ export const useWsDetailStore = create<WsDetailStore>((set, get) => ({
         }
       });
 
-      session.player.setTime(session.startPoint); // 재생 시작 시 startPoint로 이동
+      session.player.setTime(session.startPoint);
       session.player.play();
       set((state) => ({
         sessions: {
