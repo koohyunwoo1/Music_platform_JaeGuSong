@@ -27,7 +27,7 @@ export default function ToggleOptions({ onSelectSession }) {
               fontSize={10}
               item={session}
               key={session.value}
-              color={"white"}
+              color={"black"}
               onClick={() => onSelectSession(session.label)}
             >
               {session.label}
@@ -41,7 +41,7 @@ export default function ToggleOptions({ onSelectSession }) {
 
 const frameworks = createListCollection({
   items: [
-    { label: "VOCAL", value: "vocal" },
+    { label: "VOCAL", value: "vocals" },
     { label: "PIANO", value: "piano" },
     { label: "SYNTHESIZER", value: "synthesizer" },
     { label: "ACOUSTIC GUITAR", value: "acoustic_guitar" },
