@@ -141,10 +141,10 @@
 
 ## 팀원
 
-<table style="width: 100%; border-collapse: collapse;">
+<table>
     <thead>
         <tr>
-            <th style="text-align: center;">이름</th>
+            <th style="text-align: center; width: 800px;">이름</th>
             <th style="text-align: center;">역할</th>
             <th style="text-align: center;">세부사항</th>
         </tr>
