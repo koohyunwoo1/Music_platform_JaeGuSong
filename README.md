@@ -163,19 +163,19 @@
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-PUBLIC/PRIVATE 필터링 적용
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-zustand를 이용해 유저 및 크루 헤더 정보 변경
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-피드장에게만 글쓰기 기능 부여
-                <br>-크루</br>
+                <br>-크루
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;- 크루 생성 및 수정 페이지
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;- 크루장에 다른 크루원에게 피드장/채팅장 권한 부여
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;- 크루장은 크루 가입을 신청한 유저를 승인 혹은 거절
-                <br>-팔로우</br>
+                <br>-팔로우
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-다른 유저를 팔로우하는 기능 구현
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-팔로우/팔로워 목록 생성
-                <br>-Chakra UI를 활용한 컴포넌트 디자인</br>
+                <br>-Chakra UI를 활용한 컴포넌트 디자인
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-커뮤니티
             </td>
         </tr>    
         <tr>
-            <td style="text-align: center; vertical-align: middle;">권혜경</td>
+            <td>권혜경</td>
             <td style="text-align: center; vertical-align: middle;">백엔드</td>
             <td>-유저
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-로그인/회원가입
@@ -200,25 +200,26 @@
             </td>
         </tr>    
         <tr>
-            <td style="text-align: center; vertical-align: middle;">구현우</td>
-            <td style="text-align: center; vertical-align: middle;">프론트엔드</td>
+            <td>구현우</td>
+            <td>프론트엔드</td>
             <td>-게임
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-Tone.js를 활용해 음감 게임 생성
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-나의 음성 높낮이를 받아와서 음표 피하기 게임을 개발
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-실제 드럼의 소리를 받아와서 리듬 게임 개발
-            <br>-채팅
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-실시간 채팅 구현
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-채팅방 목록 구현
-            <br>-검색
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-반응형을 활용한 검색 컴포넌트 실행
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-검색어를 입력하면 실시간으로 일치하는 유저 출력
-            <br>-Chakra UI를 활용한 컴포넌트 디자인
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;-채팅, 게임, 커뮤니티, 검색, 네비바
-            <br>-Jira 관리</td>
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-Tone.js를 활용해 음감 게임 생성
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-나의 음성 높낮이를 받아와서 음표 피하기 게임을 개발
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-실제 드럼의 소리를 받아와서 리듬 게임 개발
+              <br>-채팅
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-실시간 채팅 구현
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-채팅방 목록 구현
+              <br>-검색
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-반응형을 활용한 검색 컴포넌트 실행
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-검색어를 입력하면 실시간으로 일치하는 유저 출력
+              <br>-Chakra UI를 활용한 컴포넌트 디자인
+              <br>&nbsp;&nbsp;&nbsp;&nbsp;-채팅, 게임, 커뮤니티, 검색, 네비바
+              <br>-Jira 관리
+            </td>
         </tr>    
         <tr>
-            <td style="text-align: center; vertical-align: middle;">김송희</td>
-            <td style="text-align: center; vertical-align: middle;">프론트엔드<br>백엔드</td>
+            <td>김송희</td>
+            <td>프론트엔드<br>백엔드</td>
             <td>-워크스페이스
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-`wavesurfer.js` 음원 파형 시각화
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-`wavesurfer.js` -라이브러리를 를  활용해 사용자가 업로드한 음원의 파형을 시각화.
@@ -236,14 +237,14 @@
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-팔로우 관련 API
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-팔로우/언팔로우 기능 구현
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-팔로우/언팔로우 기능 구현
-                <br>-Chakra UI를 활용한 컴포넌트 디자인</br>
+                <br>-Chakra UI를 활용한 컴포넌트 디자인
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-워크스페이스 화면 디자인
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-음원 업로드 페이지 디자인
             </td>
         </tr>    
         <tr>
-            <td style="text-align: center; vertical-align: middle;">송도언</td>
-            <td style="text-align: center; vertical-align: middle;">인프라<br>백엔드</td>
+            <td>송도언</td>
+            <td>인프라<br>백엔드</td>
             <td>-서버 구축
                 <br>-워크스페이스
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-음원 분리 AI LALAL.ai를를 이용해 세션별 분리
