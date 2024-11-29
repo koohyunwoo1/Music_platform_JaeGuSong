@@ -142,17 +142,14 @@
 ## 팀원
 
 <table>
-    <thead>
         <tr>
-            <th style="text-align: center; width: 800px;">이름</th>
-            <th style="text-align: center;">역할</th>
-            <th style="text-align: center;">세부사항</th>
+            <th>이름</th>
+            <th>역할</th>
+            <th>세부사항</th>
         </tr>
-    </thead>
-    <body>
         <tr>
-            <td style="text-align: center; vertical-align: middle;">박수빈</td>
-            <td style="text-align: center; vertical-align: middle;">팀장<br>프론트엔드</td>
+            <td>박수빈</td>
+            <td>팀장<br>프론트엔드</td>
             <td>
                 -로그인/회원가입
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-이메일 인증을 통한 회원가입
@@ -260,5 +257,4 @@
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-그래프DB를 활용한 유저 추천
             </td>
         </tr> 
-    </body>   
 </table>
