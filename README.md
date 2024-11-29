@@ -156,6 +156,7 @@
             <td>
                 -로그인/회원가입
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-이메일 인증을 통한 회원가입
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;-formData를 이용해 텍스트는 application/json 형태로, 이미지 파일은 File 형태로 전송
                 <br>-커뮤니티
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-메인 페이지
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-유저 정보 기반의 다른 유저 추천
@@ -163,7 +164,7 @@
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-글 생성 및 수정 페이지, 글 삭제
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-댓글 및 대댓글 생성, 수정, 삭제
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-PUBLIC/PRIVATE 필터링 적용
-                <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-Zustand를 이용해 유저 및 크루 헤더 정보 변경
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-zustand를 이용해 유저 및 크루 헤더 정보 변경
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-피드장에게만 글쓰기 기능 부여
                 <br>-크루</br>
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;- 크루 생성 및 수정 페이지
@@ -183,7 +184,7 @@
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-로그인/회원가입
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-이메일 인증을 통한 회원가입
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-이름 길이 제한
-                <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-text 정보는 json으로 받고 프로필 사진 이미지는 파일로 받는다?(수정)
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-text 정보는 json으로, 프로필 사진 이미지는 file로 처리
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-액세스 토큰 재발급
                 <br>-크루
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-크루 관련 API
@@ -248,8 +249,7 @@
             <td style="text-align: center; vertical-align: middle;">인프라<br>백엔드</td>
             <td>-서버 구축
                 <br>-워크스페이스
-                <br>&nbsp;&nbsp;&nbsp;&nbsp;-음원 분리 AI(이름 뭐더랑)을 이용해 세션별 분리
-                <br>&nbsp;&nbsp;&nbsp;&nbsp;-워크스페이스 관련 API
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;-음원 분리 AI LALAL.ai를를 이용해 세션별 분리
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;-워크스페이스 관련 API
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-워크스페이스 생성 및 삭제
                 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-세션 추가
