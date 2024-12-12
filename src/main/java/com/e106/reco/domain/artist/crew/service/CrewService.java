@@ -15,6 +15,9 @@ import com.e106.reco.domain.artist.user.dto.CustomUserDetails;
 import com.e106.reco.domain.artist.user.dto.UserSummaryDto;
 import com.e106.reco.domain.artist.user.entity.User;
 import com.e106.reco.domain.artist.user.repository.UserRepository;
+import com.e106.reco.domain.chat.entity.ChatArtist;
+import com.e106.reco.domain.chat.repository.ChatArtistMongoRepository;
+import com.e106.reco.domain.chat.repository.ChatArtistRedisRepository;
 import com.e106.reco.global.common.CommonResponse;
 import com.e106.reco.global.error.exception.BusinessException;
 import com.e106.reco.global.s3.S3FileService;
@@ -50,6 +53,8 @@ public class CrewService {
     private final CrewUserRepository crewUserRepository;
 
     private final S3FileService s3FileService;
+    private final ChatArtistMongoRepository chatArtistMongoRepository;
+    private final ChatArtistRedisRepository chatArtistRedisRepository;
 
     @Value("${spring.image.profile.crew}")
     private String configProfile;
@@ -130,7 +135,7 @@ public class CrewService {
         CrewUser crewUser = crewUserRepository.findById(
                         CrewUser.PK.builder()
                                 .crewSeq(declineDto.getCrewSeq())
-                                .userSeq(userDetails.getSeq())
+                                .userSeq(declineDto.getUserSeq())
                                 .build())
                 .filter(crewuser -> crewuser.getState() != CrewUserState.WAITING)
                 .orElseThrow(() -> new BusinessException(CREW_USER_NOT_FOUND));
@@ -186,6 +191,8 @@ public class CrewService {
 
         crewDto.setProfileImage(file==null ? configProfile : s3FileService.uploadFile(file));
         Crew.of(crew, crewDto);
+        chatArtistMongoRepository.save(ChatArtist.of(crew));
+//        chatArtistRedisRepository.createChatUser(crew);
         crewRepository.save(crew);
         return new CommonResponse("크루 업데이트 완료");
     }
@@ -212,5 +219,13 @@ public class CrewService {
         List<CrewUser> crewUsers = crewUserRepository.findCrewUsersByCrewSeqWithoutMaster(crewSeq, crew.getManager().getSeq());
 
         return CrewInfoDto.of(crew, crewUsers);
+    }
+
+    public List<UserSummaryDto> waitngCrew(Long crewSeq) {
+        CustomUserDetails userDetails = AuthUtil.getCustomUserDetails();
+        Crew crew = crewRepository.findBySeqAndManagerSeq(crewSeq, userDetails.getSeq()).orElseThrow(()->new BusinessException(USER_NOT_MASTER));
+        List<CrewUser> crewUsers = crewUserRepository.findWatingCrewUsersByCrewSeq(crewSeq);
+
+        return crewUsers.stream().map(crewUser -> UserSummaryDto.of(crewUser.getUser())).toList();
     }
 }

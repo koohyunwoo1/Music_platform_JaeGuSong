@@ -1,13 +1,21 @@
 import axios from "axios";
-import { Box, Stack, Text, Flex, Card, Button } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
-import WaveSurfer from "wavesurfer.js";
+import { Stack, Text, Flex, Card, Button } from "@chakra-ui/react";
+import { useRef, useState } from "react";
 import ToggleOptions from "./toggleOptions";
-import CursorMarker from "./cursorMarker";
+import {
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "../ui/checkbox";
 import Play from "@/sections/workspace/play";
 import { toaster } from "@/components/ui/toaster";
 import { useWsDetailStore } from "@/stores/wsDetailStore";
+import SessionMain from "./sessionMain";
+import TimePanel from "./timePanel";
 
 interface SessionProps {
   sessionId: string;
@@ -16,6 +24,8 @@ interface SessionProps {
   startPoint: number;
   endPoint: number;
   workspaceSeq: number; // workspaceSeq를 props로 추가
+  globalStartPoint: number;
+  globalEndPoint: number;
   onSessionDelete: (sessionId: string) => void; // 삭제 핸들러 추가
 }
 
@@ -23,105 +33,65 @@ export default function Session({
   sessionId,
   url,
   type,
-  startPoint,
-  endPoint,
+  startPoint: initialStartPoint,
+  endPoint: initialEndPoint,
   workspaceSeq,
+  globalStartPoint,
+  globalEndPoint,
   onSessionDelete,
 }: SessionProps & { onSessionDelete: (sessionId: number) => void }) {
-  const waveformRef = useRef<HTMLDivElement | null>(null);
-  const wavesurferRef = useRef<WaveSurfer | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [cursor1, setCursor1] = useState(startPoint); // 시작 커서 위치
-  const [cursor2, setCursor2] = useState(endPoint); // 종료 커서 위치
-  const addSession = useWsDetailStore((state) => state.addSession);
+
+  // startPoint, endPoint
+  const [cursor1, setCursor1] = useState(initialStartPoint); // 시작 커서 위치
+  const [cursor2, setCursor2] = useState(initialEndPoint); // 종료 커서 위치
+
+  // 상태 관리 및 store 관련
   const removeSession = useWsDetailStore((state) => state.removeSession);
-  const toggleSession = useWsDetailStore((state) => state.toggleSession);
+  const updateSession = useWsDetailStore((state) => state.updateSession);
+  const setCheck = useWsDetailStore((state) => state.setCheck);
+  const storeStartPoint = useWsDetailStore(
+    (state) => state.sessions[sessionId]?.startPoint
+  );
+  const storeEndPoint = useWsDetailStore(
+    (state) => state.sessions[sessionId]?.endPoint
+  );
+  const storeDuration = useWsDetailStore(
+    (state) => state.sessions[sessionId]?.duration
+  );
+  const storeCheck = useWsDetailStore(
+    (state) => state.sessions[sessionId]?.check
+  );
+
   const API_URL = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    if (!waveformRef.current) return;
+  // startPoint, endPoint - 재렌더링 방지
+  const startPointRef = useRef(
+    storeStartPoint !== 0 ? storeStartPoint : initialStartPoint
+  );
+  const endPointRef = useRef(
+    storeEndPoint !== 0 ? storeEndPoint : initialEndPoint
+  );
 
-    wavesurferRef.current = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: "#FFFFFF",
-      progressColor: "lightgrey",
-      cursorColor: "green",
-      barWidth: 1,
-      barHeight: 0.8,
-      barGap: 0.5,
-      cursorWidth: 2,
-      height: 100,
-    });
+  // toggleOptions
+  const sessionTypeRef = useRef(type);
+  const [, forceUpdate] = useState(0); // 이 상태는 재렌더링을 위한 용도로만 사용합니다.
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    wavesurferRef.current.load(url);
-
-    wavesurferRef.current.on("ready", () => {
-      const audioDuration = wavesurferRef.current?.getDuration() || 0;
-      setDuration(audioDuration);
-      setCursor2(endPoint || audioDuration); // 종료 커서를 오디오 길이로 설정
-    });
-
-    wavesurferRef.current.on("audioprocess", () => {
-      const currentTime = wavesurferRef.current?.getCurrentTime() || 0;
-      setCurrentTime(currentTime);
-    });
-
-    wavesurferRef.current.on("seek", () => {
-      const newTime = wavesurferRef.current?.getCurrentTime() || 0;
-      setCurrentTime(newTime);
-    });
-
-    const updateCurrentTimeOnClick = () => {
-      const newTime = wavesurferRef.current?.getCurrentTime() || 0;
-      setCurrentTime(newTime);
-    };
-    waveformRef.current.addEventListener("click", updateCurrentTimeOnClick);
-
-    addSession(sessionId, wavesurferRef.current);
-
-    return () => {
-      removeSession(sessionId);
-      wavesurferRef.current?.destroy();
-      waveformRef.current?.removeEventListener(
-        "click",
-        updateCurrentTimeOnClick
-      );
-    };
-  }, [sessionId, addSession, removeSession, url, startPoint, endPoint]);
-
-  const handlePlayPause = () => {
-    if (wavesurferRef.current) {
-      if (isPlaying) {
-        wavesurferRef.current.pause();
-      } else {
-        wavesurferRef.current.play(cursor1, cursor2);
-      }
-      setIsPlaying(!isPlaying);
-    }
+  const handleSelectSession = (value) => {
+    sessionTypeRef.current = value;
+    forceUpdate((prev) => prev + 1); // 강제로 재렌더링
+    setIsPopoverOpen(false); // 선택 후 Popover 닫기
   };
 
-  const handleStop = () => {
-    if (wavesurferRef.current) {
-      wavesurferRef.current.stop();
-      setIsPlaying(false);
-      setCurrentTime(0);
-    }
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  const handleResetSession = () => {
+    sessionTypeRef.current = type;
+    forceUpdate((prev) => prev + 1); // 강제로 재렌더링
   };
 
   const handleDeleteSession = async () => {
-    console.log("세션 삭제 요청 api 날려볼게");
-
     try {
       const storedToken = localStorage.getItem("jwtToken");
-      const response = await axios.delete(
+      await axios.delete(
         `${API_URL}/api/workspaces/${workspaceSeq}/session/${sessionId}`,
         {
           headers: {
@@ -131,12 +101,14 @@ export default function Session({
         }
       );
 
+      removeSession(sessionId);
+      console.log("store 의 sessions :", useWsDetailStore.getState().sessions);
+
       toaster.create({
         description: "세션이 성공적으로 삭제되었습니다.",
         type: "success",
       });
 
-      // onDelete(sessionId); // 삭제 후 부모 컴포넌트의 상태 업데이트
       onSessionDelete(Number(sessionId)); // 부모 컴포넌트에 삭제를 알림
     } catch (error) {
       console.error("Error adding session:", error);
@@ -147,47 +119,180 @@ export default function Session({
     }
   };
 
+  const handleSetCheck = (isChecked: boolean) => {
+    setCheck(sessionId, isChecked);
+  };
+
+  // const handleSessionTypeChange = async () => {
+
+  //   try {
+  //     const storedToken = localStorage.getItem("jwtToken");
+  //     const response = await axios.post(
+  //       `${API_URL}/api/workspaces/${workspaceSeq}/session/${sessionId}`,
+  //       {
+  //         name: workspaceName,
+  //         originSinger,
+  //         originTitle,
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${storedToken}`,
+  //         },
+  //       }
+  //     );
+
+  //     toaster.create({
+  //       description: "워크스페이스가 성공적으로 생성되었습니다.",
+  //       type: "success",
+  //     });
+
+  //     onWorkspaceCreated(response.data);
+  //   } catch (error) {
+  //     console.error("Error creating workspace:", error);
+  //     toaster.create({
+  //       description: "워크스페이스 생성에 실패했습니다.",
+  //       type: "error",
+  //     });
+  //   }
+  // };
+
   return (
-    <Card.Root bg="transparent" color="white" padding="2" borderColor="grey">
-      <Flex gap={3}>
-        <Checkbox onChange={() => toggleSession(sessionId)} />
-        <Stack justifyContent="center">
-          <ToggleOptions />
-          <Text fontFamily="MiceGothic" fontSize={11}>
-            세션 타입 : {type}
-          </Text>
+    <Card.Root
+      bg="transparent"
+      color="white"
+      py="5px"
+      px="15px"
+      border="rgba(255, 255, 255, 0.3) 1.5px solid"
+      borderRadius={10}
+    >
+      <Flex gap={3} alignItems="center">
+        <Checkbox
+          colorPalette="purple"
+          checked={storeCheck} // store에서 현재 세션의 체크 상태를 가져옴
+          onChange={(e) => handleSetCheck(e.target.checked)}
+          cursor="pointer"
+        />
+        <Stack width="150px" justifyContent="center">
+          <Stack width="150px" justifyContent="center" alignItems="start">
+            <Text fontFamily="MiceGothic" fontSize={11}>
+              세션 타입 : {sessionTypeRef.current || "세션을 선택해주세요"}
+            </Text>
+            <Flex my={1} gap={2}>
+              {sessionTypeRef.current !== type ? (
+                <Button
+                  width="50px"
+                  height="26px"
+                  fontSize="10px"
+                  border="purple 2px solid"
+                  borderRadius="8px"
+                  onClick={handleResetSession}
+                >
+                  초기화
+                </Button>
+              ) : (
+                <PopoverRoot>
+                  <PopoverTrigger asChild>
+                    <Button
+                      width="50px"
+                      height="26px"
+                      fontSize="10px"
+                      border="purple 2px solid"
+                      borderRadius="8px"
+                    >
+                      변경
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverBody>
+                      <PopoverTitle
+                        fontWeight="medium"
+                        fontSize={13}
+                        marginBottom={3}
+                      >
+                        세션 정보 변경
+                      </PopoverTitle>
+                      <Flex justifyContent="center" alignItems="center" gap={2}>
+                        <ToggleOptions onSelectSession={handleSelectSession} />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          fontFamily="MiceGothic"
+                          fontSize={11}
+                          onClick={() => {
+                            console.log("변경하기")
+                            // handleSessionTypeChange
+                          }}
+                        >
+                          변경하기
+                        </Button>
+                      </Flex>
+                    </PopoverBody>
+                  </PopoverContent>
+                </PopoverRoot>
+              )}
+              <Button
+                onClick={handleDeleteSession}
+                width="50px"
+                height="26px"
+                fontSize="10px"
+                border="purple 2px solid"
+                borderRadius="8px"
+              >
+                삭제
+              </Button>
+            </Flex>
+          </Stack>
         </Stack>
-
-        <Box width="100%">
-          <Box
-            ref={waveformRef}
-            width="100%"
-            height="100px"
-            position="relative"
-          >
-            <CursorMarker
-              position={cursor1}
-              color="green"
-              duration={duration}
-            />
-            <CursorMarker position={cursor2} color="red" duration={duration} />
-          </Box>
-
-          <Flex justifyContent="space-between">
-            <Text fontSize={10}>{formatTime(currentTime)}</Text>
-            <Text fontSize={10}>{formatTime(duration)}</Text>
-          </Flex>
-        </Box>
-
-        <Play
-          isPlaying={isPlaying}
-          onPlayPause={handlePlayPause}
-          onStop={handleStop}
-          mode="individual"
+              
+        {/* 파형 관련 세부 UI 및 로직 */}
+        <SessionMain
+          sessionId={sessionId}
+          url={url}
+          startPoint={initialStartPoint}
+          endPoint={initialEndPoint}
+          globalStartPoint={globalStartPoint}
+          globalEndPoint={globalEndPoint}
         />
 
-        {/* <Button onClick={handleDeleteSession}>삭제</Button> */}
-        <Button onClick={handleDeleteSession}>삭제</Button>
+        <Stack>
+          <TimePanel
+            sessionId={sessionId}
+            duration={storeDuration} // 세션의 총 길이 전달
+            onStartChange={(startTime) => {
+              setCursor1(startTime); // 커서 이동
+              startPointRef.current = startTime;
+              updateSession(sessionId, { startPoint: startTime }); // store 업데이트
+            }}
+            onEndChange={(endTime) => {
+              setCursor2(endTime); // 커서 이동
+              endPointRef.current = endTime;
+              updateSession(sessionId, { endPoint: endTime }); // store 업데이트
+            }}
+          />
+
+          <Play
+            isPlaying={useWsDetailStore((state) => state.sessions[sessionId]?.isPlaying)}
+            onPlayPause={() => {
+              const store = useWsDetailStore.getState();
+              const isPlaying = store.sessions[sessionId]?.isPlaying;
+
+              if (isPlaying) {
+                store.pauseSession(sessionId);
+              } else {
+                store.playSession(sessionId);
+              }
+            }}
+            onStop={() => {
+              const store = useWsDetailStore.getState();
+              store.stopSession(sessionId); // 정지 버튼으로 세션 재생 종료 및 시작 지점으로 이동
+            }}
+            mode="individual"
+            playWidth="200px"
+            playHeight="70px"
+          />
+        </Stack>
       </Flex>
     </Card.Root>
   );

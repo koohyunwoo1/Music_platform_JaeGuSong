@@ -1,98 +1,195 @@
-import { useState, useRef, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
-export interface Message {
-  id: string;
-  sender: string;
-  receiver: string;
+interface ChatMessage {
+  artistSeq: number;
+  roomSeq: number;
   msg: string;
-  createdAt: string;
 }
 
-export interface User {
-  id: string;
-  userName: string;
+interface UseChatProps {
+  jwtToken: string | null;
+  API_URL: string;
+  userSeq: number | null;
+  OtherUserSeq: number | null;
 }
 
-const useChat = (API_URL: string) => {
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [selectedChatUser, setSelectedChatUser] = useState<User | null>(null);
-  const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const savedMessages = localStorage.getItem("messages");
-    return savedMessages ? JSON.parse(savedMessages) : [];
-  });
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+interface ChatRoomUser {
+  artistSeq: number;
+  nickname: string;
+  profilePicUrl: string;
+}
 
-  // Mock 사용자 데이터
-  const mockUsers: User[] = [
-    { id: uuidv4(), userName: "송중기" },
-    { id: uuidv4(), userName: "이민호" },
-  ];
+export const useChat = ({
+  jwtToken,
+  API_URL,
+  userSeq,
+  OtherUserSeq,
+}: UseChatProps) => {
+  const [roomSeq, setRoomSeq] = useState<number | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [inputMessage, setInputMessage] = useState("");
+  const [chatRoomUsers, setChatRoomUsers] = useState<ChatRoomUser[]>([]);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
-  // localStorage에서 artistSeq 가져오기
-  const getArtistSeq = () => {
-    const authStorage = localStorage.getItem("auth-storage");
-    if (authStorage) {
-      try {
-        const parsedData = JSON.parse(authStorage);
-        return parsedData?.state?.artistSeq || null;
-      } catch (error) {
-        console.error("Error parsing auth-storage:", error);
-        return null;
-      }
+  // 채팅방 열기
+  const handleCreateChat = async () => {
+    if (!jwtToken || !userSeq || !OtherUserSeq) {
+      console.error("채팅 생성 실패: 필요한 정보가 누락되었습니다.");
+      return;
     }
-    return null;
-  };
 
-  // 메시지 전송 함수
-  const sendMessage = async () => {
-    const senderSeq = getArtistSeq();
-    if (!senderSeq || !message.trim() || !selectedChatUser) return;
-
-    const payload: Message = {
-      id: uuidv4(),
-      sender: senderSeq.toString(),
-      receiver: "1",
-      msg: message,
-      createdAt: new Date().toISOString(),
+    const data = {
+      receiversSeq: [OtherUserSeq],
+      senderSeq: userSeq,
     };
-
+    console.log(data);
     try {
-      const response = await axios.post(`${API_URL}/api/chats`, payload, {
+      const response = await axios.post(`${API_URL}/api/chats/single`, data, {
         headers: {
+          Authorization: `Bearer ${jwtToken}`,
           "Content-Type": "application/json",
         },
       });
-
-      console.log(response.data);
-
-      setMessages((prevMessages) => [...prevMessages, payload]);
-      setMessage("");
+      setRoomSeq(response.data);
+      setIsChatModalOpen(true);
     } catch (error) {
-      console.error(error);
+      console.error("채팅 생성 실패:", error);
+    }
+  };
+
+  // 메시지 전송
+  const handleSendMessage = async () => {
+    if (!jwtToken || !roomSeq || inputMessage.trim() === "") return;
+
+    const data: ChatMessage = {
+      artistSeq: userSeq!,
+      roomSeq: roomSeq!,
+      msg: inputMessage,
+    };
+
+    try {
+      await axios.post(
+        `${API_URL}/api/chats/webflux?token=${jwtToken}`,
+        data,
+        {}
+      );
+      setInputMessage("");
+    } catch (error) {
+      console.error("메시지 전송 실패:", error);
+    }
+  };
+
+  // 채팅방 유저 누구있는지 ?
+  const handleFetchChatRoomUsers = () => {
+    setChatRoomUsers([]);
+    const eventSource = new EventSource(
+      `${API_URL}/api/chats/webflux/artistInfo/${roomSeq}?token=${jwtToken}`
+    );
+
+    eventSource.onmessage = (event) => {
+      const user: ChatRoomUser = JSON.parse(event.data);
+      if (user.artistSeq !== Number(userSeq)) {
+        setChatRoomUsers((prevUsers) => {
+          if (
+            prevUsers.some(
+              (existingUser) => existingUser.artistSeq === user.artistSeq
+            )
+          ) {
+            return prevUsers;
+          }
+          return [...prevUsers, user];
+        });
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE 에러:", error);
+      eventSource.close();
+    };
+
+    eventSourceRef.current = eventSource;
+  };
+
+  // 채팅 메시지 가져오기 (EventSource)
+  const handleFetchMessages = () => {
+    const eventSource = new EventSource(
+      `${API_URL}/api/chats/webflux/${roomSeq}/${userSeq}?token=${jwtToken}`
+    );
+    eventSource.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      console.log(newMessage);
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+    eventSource.onerror = (error) => {
+      console.error("SSE 에러:", error);
+      eventSource.close();
+    };
+
+    eventSourceRef.current = eventSource;
+  };
+
+  // 채팅방 나가기
+  const handleLeaveChat = async () => {
+    if (!jwtToken || !userSeq || !roomSeq) {
+      console.error("채팅 나가기 실패: 필요한 정보가 누락되었습니다.");
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `${API_URL}/api/chats/leave/${roomSeq}/${userSeq}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("채팅방 나가기 성공:", response);
+
+        setRoomSeq(null);
+        setChatMessages([]);
+        setChatRoomUsers([]);
+        setIsChatModalOpen(false);
+
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          eventSourceRef.current = null;
+        }
+      }
+    } catch (error) {
+      console.error("채팅 나가기 실패:", error);
     }
   };
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (roomSeq) {
+      handleFetchMessages();
+      handleFetchChatRoomUsers();
     }
-  }, [messages]);
+
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
+  }, [roomSeq]);
 
   return {
-    modalOpen,
-    setModalOpen,
-    selectedChatUser,
-    setSelectedChatUser,
-    message,
-    setMessage,
-    messages,
-    mockUsers,
-    sendMessage,
-    messagesEndRef,
+    roomSeq,
+    userSeq,
+    OtherUserSeq,
+    chatMessages,
+    isChatModalOpen,
+    inputMessage,
+    setInputMessage,
+    setIsChatModalOpen,
+    handleCreateChat,
+    handleSendMessage,
+    handleLeaveChat,
+    chatRoomUsers,
   };
 };
-
-export default useChat;
