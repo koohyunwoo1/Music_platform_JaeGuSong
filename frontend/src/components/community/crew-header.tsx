@@ -8,12 +8,18 @@ import Modal from "../common/Modal";
 import UseCommunityCrew from "@/hooks/community/useCommunityCrew";
 import CrewMemeberListModal from "./crew-member-list-modal";
 import CrewJoinApplyModal from "./crew-join-apply-modal";
+import useCommon from "@/hooks/common/common";
 
-const CrewHeader: React.FC = () => {
+interface CrewHeaderProps {
+  checkBoardSeq: number;
+}
+
+const CrewHeader: React.FC<CrewHeaderProps> = ({checkBoardSeq}) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const setGetCrewSeq = useCrewSeqStore((state) => state.setGetCrewSeq);
-
+  const setGetCrewSeqStore = useCrewSeqStore((state) => state.setGetCrewSeqStore);
+  const getCrewSeqStore = useCrewSeqStore((state) => state.getCrewSeqStore);
+  
   const {
     openCrewFollowModal,
     openCrewJoinModal,
@@ -37,19 +43,28 @@ const CrewHeader: React.FC = () => {
     handleCrewWithdrawModal,
     handleCrewMembers,
     preGetCrewInfo,
+    getCrewInfo
   } = UseCommunityCrew();
-
+  const { storeMySeq, getMySeq } = useCommon();
+  
   useEffect(() => {
     if (!myCrewsSeq || !crewNameSeq) {
       preGetCrewInfo();
+    } else {
+      getCrewInfo();
     }
-  }, [myCrewsSeq, crewNameSeq]);
-
+    getMySeq()
+  }, [myCrewsSeq, crewNameSeq, getCrewSeqStore, id, storeMySeq]);
+  
+  useEffect(() => {
+    console.log('피드장', checkBoardSeq, storeMySeq)
+  }, [storeMySeq])
+  
   useEffect(() => {
     if (id) {
-      setGetCrewSeq(Number(id));
+      setGetCrewSeqStore(Number(id));
     }
-  }, [id, setGetCrewSeq]);
+  }, [id, setGetCrewSeqStore]);
 
   const goCreateArticle = () => {
     navigate(paths.community.create);
@@ -63,17 +78,28 @@ const CrewHeader: React.FC = () => {
         left="250px"
         width="calc(100% - 250px)"
         padding="4"
+        boxShadow="md" // 그림자 추가
+        zIndex={10} // 헤더가 항상 상단에 오도록 설정
       >
         <Box height="70px">
           <Box
             display="flex"
             flexDirection="row"
-            // gap="3px"
+            alignItems="center"
+            gap="15px" 
           >
-            <Box width="70px" height="70px">
+            <Box
+              width="70px"
+              height="70px"
+              borderRadius="full" // 프로필 이미지를 원형으로
+              overflow="hidden"
+              border="2px solid #fff" // 테두리 추가
+              boxShadow="0 0 10px rgba(0, 0, 0, 0.2)" 
+            >
               <img
                 src={`https://file-bucket-l.s3.ap-northeast-2.amazonaws.com/${crewProfileImage}`}
                 alt={`${crewProfileImage}`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               ></img>
             </Box>
             <Text textStyle="3xl" marginRight="10px" marginTop="15px">
@@ -116,7 +142,7 @@ const CrewHeader: React.FC = () => {
           justifyContent="flex-end"
           gap="5px"
         >
-          {myName === crewManagerName && (
+          {checkBoardSeq === parseInt(storeMySeq) && (
             <Box marginRight="3px" display="flex" gap="7px">
               <CommunityButton title="글쓰기" onClick={goCreateArticle} />
               <CommunityButton

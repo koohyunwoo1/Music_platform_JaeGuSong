@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Box, Text, Separator } from "@chakra-ui/react";
+import { Box, Text, Separator, Alert as ChakraAlert } from "@chakra-ui/react";
 import CommunityButton from "@/components/community/community-button";
 import Reviewcontainer from "@/components/community/review-container";
 import CrewHeader from "@/components/community/crew-header";
@@ -12,6 +12,7 @@ import paths from "@/configs/paths";
 import Modal from "@/components/common/Modal";
 import useCommunityDetail from "@/hooks/community/useCommunityDetail";
 import useHeaderStore from "@/stores/headerStore";
+import useReviewStore from "@/stores/review";
 
 const CommunityDetailView: React.FC = () => {
   const { openDeleteModal, setOpenDeleteModal, deleteArticle } =
@@ -33,6 +34,7 @@ const CommunityDetailView: React.FC = () => {
     otherUserNickname,
     otherUserProfileImage,
   } = useHeaderStore((state) => state);
+  const { changeReview } = useReviewStore();
 
   const { id } = useParams<{ id: string }>();
   const API_URL = import.meta.env.VITE_API_URL;
@@ -51,9 +53,7 @@ const CommunityDetailView: React.FC = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log('크루 헤더', openUserHeader)
-  }, [openUserHeader])
+  useEffect(() => {}, [openUserHeader]);
 
   const getArticleDetail = async () => {
     const storedToken = localStorage.getItem("jwtToken");
@@ -74,8 +74,9 @@ const CommunityDetailView: React.FC = () => {
       setState(article.state || "");
       setTitle(article.title || "");
 
+      console.log("게시물 상세 데이터", article);
+
       const commentSeqs = article.comments.map((comment) => comment.commentSeq);
-      console.log(commentSeqs); // commentSeq 배열 출력
     } catch (error) {
       console.error(error);
     }
@@ -83,7 +84,7 @@ const CommunityDetailView: React.FC = () => {
 
   useEffect(() => {
     getArticleDetail();
-  }, [id]);
+  }, [id, changeReview]);
 
   const changeMyLiked = () => {
     const newLikedStatus = !isLiked;
@@ -116,7 +117,23 @@ const CommunityDetailView: React.FC = () => {
         <CrewHeader />
       )}
       <Container>
-        <Box>
+        <Box
+          height="600px"
+          overflowY="auto"
+          css={{
+            "&::-webkit-scrollbar": {
+              width: "10px",
+              height: "8px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "rgba(255, 255, 255, 0.4)",
+              borderRadius: "5px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+            },
+          }}
+        >
           <Box margin="30px 30px">
             <Box
               display="flex"
@@ -183,6 +200,33 @@ const CommunityDetailView: React.FC = () => {
           />
         </Box>
       </Container>
+      {openDeleteModal && (
+        <Modal
+          isOpen={openDeleteModal}
+          onClose={() => setOpenDeleteModal(false)}
+        >
+          <Box padding=" 5px 20px">
+            <Text color="black" margin="40px">
+              정말 이 게시물을 삭제하시겠습니까?
+            </Text>
+            <Box
+              margin="10px"
+              display="flex"
+              justifyContent="center"
+              gap="10px"
+            >
+              <CommunityButton
+                title="삭제"
+                onClick={() => deleteArticle(Number(id))}
+              />
+              <CommunityButton
+                title="취소"
+                onClick={() => setOpenDeleteModal(false)}
+              />
+            </Box>
+          </Box>
+        </Modal>
+      )}
     </Box>
   );
 };

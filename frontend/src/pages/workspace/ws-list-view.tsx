@@ -1,7 +1,6 @@
 import { Box, Stack, Flex, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Search from "@/sections/workspace/search";
 import CardList from "@/sections/workspace/cardList";
 import WsCreateButton from "@/sections/workspace/wsCreateButton";
 import { useNavigate } from "react-router-dom";
@@ -29,10 +28,7 @@ export default function WsListView() {
   // wsList를 얻기 위한 API 호출 함수
   const fetchWsList = async (page = 0) => {
     try {
-      console.log("워크스페이스 리스트 GET API 요청 보낼게");
-
       const storedToken = localStorage.getItem("jwtToken");
-      console.log("artistSeq :", artistSeq);
       const response = await axios.get(
         `${API_URL}/api/artists/${artistSeq}/workspaces?page=${page - 1}`,
         {
@@ -41,8 +37,6 @@ export default function WsListView() {
           },
         }
       );
-      console.log("fetchWsList의 response.data :", response.data);
-      console.log("params :", page);
       setWsList(response.data.workspaceDto); // wsList 상태에 저장
       setTotalPage(response.data.totalPage); // totalPage 상태에 저장
     } catch (error) {
@@ -56,23 +50,14 @@ export default function WsListView() {
     console.log("여기는 WsListView, artistSeq 는", artistSeq);
     if (artistSeq) {
       fetchWsList(page);
-    } else {
-      console.log("artistSeq 값 없음", artistSeq);
     }
-  }, [artistSeq]);
-
-  // page 값이 변경될 때마다 fetchWsList 호출
-  useEffect(() => {
-    if (artistSeq) {
-      fetchWsList(page);
-    }
-  }, [page]);
+  }, [artistSeq, page]);
 
   return (
     <Flex direction="column" height="100%" paddingTop="3" px="5" gap="2">
-      <Stack>
-        <Flex justify="space-between">
-          <Search />
+      <Stack mb="3">
+        <Flex justify="end">
+          {/* <Search /> */}
 
           {/* artistSeq와 생성된 워크스페이스 ID 콜백을 전달 */}
           {artistSeq && (
