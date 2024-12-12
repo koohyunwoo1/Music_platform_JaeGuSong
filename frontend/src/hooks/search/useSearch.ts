@@ -189,5 +189,6 @@ export default function useSearch() {
     goOtherFeed,
     toggleSearch,
     handleSearchChange,
+    handleSearchSubmit,
   };
 }

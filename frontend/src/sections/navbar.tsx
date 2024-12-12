@@ -42,6 +42,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const artistNickname = useAuthStore((state) => state.artistNickname);
 
+
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     setIsLoggedIn(!!token);
@@ -367,6 +368,7 @@ export default function Navbar() {
               </>
             )}
           </Flex>
+
         </Stack>
         <Stack marginTop="10px">
           {items.map((item, index) => (

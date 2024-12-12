@@ -90,7 +90,8 @@ const MyPageView: React.FC = () => {
     if (crewsInfo) {
       getMyCrews(crewsInfo);
     }
-  }, [crewsInfo, getMyCrews]);
+  }, [crewsInfo]);
+
 
   const goCrewFeed = ({ crew }: { crew: Crew }) => {
     setOpenUserHeader(false)

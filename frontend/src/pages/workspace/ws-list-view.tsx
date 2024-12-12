@@ -47,6 +47,7 @@ export default function WsListView() {
 
   // 페이지 렌더링 시 artistSeq 가져오기
   useEffect(() => {
+    console.log("여기는 WsListView, artistSeq 는", artistSeq);
     if (artistSeq) {
       fetchWsList(page);
     }

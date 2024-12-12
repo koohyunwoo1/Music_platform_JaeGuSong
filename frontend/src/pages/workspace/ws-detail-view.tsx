@@ -15,6 +15,13 @@ interface Sound {
   // 필요한 다른 필드도 추가할 수 있습니다.
 }
 
+interface Sound {
+  soundSeq: number;
+  startPoint: number;
+  endPoint: number;
+  // 필요한 다른 필드도 추가할 수 있습니다.
+}
+
 export default function WsDetailView() {
   const sessions = useWsDetailStore((state) => state.sessions)
   const setSessions = useWsDetailStore((state) => state.setSessions);
@@ -69,7 +76,6 @@ export default function WsDetailView() {
         );
         setSessions(response.data.sounds);
         setWsDetails(response.data);
-
       } catch (error) {
         console.error("Error fetching workspace details:", error);
       }
