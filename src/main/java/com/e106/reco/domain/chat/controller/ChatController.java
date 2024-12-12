@@ -44,16 +44,16 @@ public class ChatController {
 ////        return
 //    }
 
-    @PostMapping("/webflux")
-    public Mono<Chat> postMsg(@RequestBody Chat chat) {
-        return chatService.sendMsg(chat);
-    }
-
-
-    @GetMapping(value = "/webflux/artistInfo/{roomSeq}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ChatArtist> getArtistInfo(@PathVariable("roomSeq") Long roomSeq) {
-        return chatService.getArtistInfo(roomSeq);
-    }
+//    @PostMapping("/webflux")
+//    public Mono<Chat> postMsg(@RequestBody Chat chat) {
+//        return chatService.sendMsg(chat);
+//    }
+//
+//
+//    @GetMapping(value = "/webflux/artistInfo/{roomSeq}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public Flux<ChatArtist> getArtistInfo(@PathVariable("roomSeq") Long roomSeq) {
+//        return chatService.getArtistInfo(roomSeq);
+//    }
 
 
 
