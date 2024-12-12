@@ -9,12 +9,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -42,10 +44,14 @@ public class Comment {
     @JoinColumn(name = "parent_seq")
     private Comment parent;
 
-    @CreatedDate
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime updatedAt;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -56,5 +62,11 @@ public class Comment {
 
     public void delete() {
         this.state = CommentState.INACTIVE;
+    }
+    public void changeContent(String content) {
+        this.content = content;
+    }
+    public void changeUpdatedAt() {
+            this.updatedAt = LocalDateTime.now();
     }
 }

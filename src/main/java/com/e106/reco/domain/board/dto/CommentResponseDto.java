@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class CommentResponseDto {
     private ArtistSummaryDto artistSummaryDto;
     private Long boardSeq;
+    private Long commentSeq;
     private Long parentCommentSeq;
     private String content;
     private LocalDateTime createdAt;
@@ -26,7 +27,8 @@ public class CommentResponseDto {
         return CommentResponseDto.builder()
                 .artistSummaryDto(ArtistSummaryDto.of(comment.getArtist()))
                 .boardSeq(comment.getBoard().getSeq())
-                .parentCommentSeq(comment.getParent().getSeq())
+                .commentSeq(comment.getSeq())
+                .parentCommentSeq(comment.getParent() == null ? null : comment.getParent().getSeq())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
