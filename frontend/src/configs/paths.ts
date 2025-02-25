@@ -10,7 +10,7 @@ const PATH = {
 
 const paths = {
   root: PATH.root,
-  main: `${PATH.community}/main`,
+  // main: `${PATH.community}/main`,
 
   // auth
   auth: {
@@ -34,6 +34,7 @@ const paths = {
   community: {
     main: `${PATH.community}`,
     myCommunity: `${PATH.community}/my-community`,
+    recommend: `${PATH.community}/main`,
     generalCommunity: (id: number) => `${PATH.community}/${id}`,
     create: `${PATH.community}/create`,
     detail: (id: number) => `${PATH.community}/detail/${id}`,
